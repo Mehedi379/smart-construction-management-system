@@ -1,0 +1,236 @@
+===========================================
+UI/UX DESIGN SYSTEM
+Blue + White + Orange Theme
+Smart Construction Management System
+===========================================
+
+🎨 COLOR PALETTE (Bangladeshi Trust-Building Design)
+
+✅ PRIMARY COLORS - Dark Blue (Trust & Professionalism)
+   Dark Blue:    #0A2647  ← Main Brand Color (Navbar, Sidebar)
+   Light Blue:   #2C74B3  ← Secondary Blue (Links, Accents)
+   
+✅ ACTION COLORS - Orange (High CTR & Engagement)
+   Orange:       #FF6F00  ← ALL Buttons, CTAs, Actions
+   
+✅ BACKGROUND - Clean White
+   White:        #FFFFFF  ← Cards, Content Areas
+   Light Gray:   #FAFAFA  ← Page Background
+
+✅ WHY THIS COMBO?
+   ✔ Blue = Trust, Reliability, Professional (Bangladeshi preference)
+   ✔ Orange = Action, Energy, High Click Rate
+   ✔ White = Clean, Modern, Easy to Read
+
+===========================================
+
+📋 USAGE GUIDE
+
+1. NAVIGATION (Sidebar/Navbar)
+   → Background: Dark Blue (#0A2647)
+   → Text: White (#FFFFFF)
+   → Active Item: Light Blue (#2C74B3)
+   → Hover: Light Blue gradient
+
+2. BUTTONS
+   → Primary Action: Orange (#FF6F00)
+     Examples: Save, Submit, Create, Add
+   → Secondary Action: Blue (#2C74B3)
+     Examples: View Details, Filter, Export
+   → Danger: Red (#EF4444)
+     Examples: Delete, Remove, Cancel
+
+3. CARDS & PANELS
+   → Background: White (#FFFFFF)
+   → Border: Light Gray (#EEEEEE)
+   → Left Border: Blue accent (#2C74B3)
+   → Shadow: Premium shadow with blue tint
+
+4. TABLES
+   → Header: Blue gradient (#0A2647 → #2C74B3)
+   → Header Text: White
+   → Row Hover: Light blue background
+   → Border: Gray (#EEEEEE)
+
+5. FORMS & INPUTS
+   → Border: Gray (#E0E0E0)
+   → Focus Border: Blue (#2C74B3)
+   → Focus Ring: Blue ring
+   → Label: Bold, Dark Gray (#424242)
+
+6. BADGES & STATUS
+   → Success: Green (#10B981)
+   → Warning: Orange (#FF6F00)
+   → Error: Red (#EF4444)
+   → Info: Blue (#2C74B3)
+
+===========================================
+
+🎯 CSS CLASSES AVAILABLE
+
+Buttons:
+   .btn-primary    → Orange gradient (main actions)
+   .btn-secondary  → Blue gradient (secondary actions)
+   .btn-outline    → Blue border, white fill
+   .btn-danger     → Red gradient
+   .btn-success    → Green gradient
+
+Cards:
+   .card           → White card with shadow
+   .stat-card      → Stat card with blue left border
+
+Tables:
+   .table-premium  → Professional table with blue header
+
+Forms:
+   .input-field    → Styled input with blue focus
+   .label          → Bold label
+
+Badges:
+   .badge-success  → Green badge
+   .badge-warning  → Orange badge
+   .badge-error    → Red badge
+   .badge-info     → Blue badge
+
+Gradients:
+   .gradient-primary   → Dark Blue to Light Blue
+   .gradient-action    → Orange gradient
+   .gradient-success   → Green gradient
+   .gradient-warning   → Yellow/Orange gradient
+   .gradient-danger    → Red gradient
+
+Layout:
+   .sidebar        → Dark blue gradient sidebar
+   .header         → White header with blue border
+
+===========================================
+
+🔥 EXAMPLE USAGE
+
+<!-- Orange Button (Main Action) -->
+<button class="btn-primary">
+  Save Voucher
+</button>
+
+<!-- Blue Button (Secondary) -->
+<button class="btn-secondary">
+  View Details
+</button>
+
+<!-- Card -->
+<div class="card">
+  <h3>Today's Expenses</h3>
+  <p>৳ 15,000</p>
+</div>
+
+<!-- Stat Card -->
+<div class="stat-card">
+  <h4>Total Projects</h4>
+  <p class="text-3xl font-bold">12</p>
+</div>
+
+<!-- Table -->
+<table class="table-premium">
+  <thead>
+    <tr>
+      <th>Name</th>
+      <th>Amount</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Material</td>
+      <td>৳ 5,000</td>
+    </tr>
+  </tbody>
+</table>
+
+<!-- Input -->
+<label class="label">Project Name</label>
+<input type="text" class="input-field" placeholder="Enter name" />
+
+<!-- Badge -->
+<span class="badge badge-success">Approved</span>
+<span class="badge badge-warning">Pending</span>
+<span class="badge badge-error">Rejected</span>
+
+===========================================
+
+📐 SPACING & LAYOUT
+
+Container Padding:    p-6 (24px)
+Card Padding:         p-6 (24px)
+Button Padding:       px-6 py-2.5
+Input Padding:        px-4 py-2.5
+Gap Between Cards:    gap-6 (24px)
+Border Radius:        rounded-lg (8px) or rounded-xl (12px)
+
+===========================================
+
+✨ SHADOW SYSTEM
+
+Small:    --shadow-sm   (Subtle)
+Medium:   --shadow-md   (Cards)
+Large:    --shadow-lg   (Dropdowns)
+XL:       --shadow-xl   (Modals)
+2XL:      --shadow-2xl  (Hero sections)
+
+Premium:  shadow-premium (Custom blue-tinted)
+Premium Large: shadow-premium-lg
+
+===========================================
+
+🎨 TAILWIND COLOR CLASSES
+
+Blue Shades:
+   bg-primary-700  → Dark Blue (#0A2647)
+   bg-primary-500  → Light Blue (#2C74B3)
+   text-primary-700 → Dark Blue text
+   border-primary-500 → Light Blue border
+
+Orange Shades:
+   bg-action-500   → Orange (#FF6F00)
+   bg-action-600   → Dark Orange (#e65100)
+   text-action-500 → Orange text
+   hover:bg-action-600 → Darker on hover
+
+===========================================
+
+💡 DESIGN TIPS
+
+1. Use Orange ONLY for important actions (Save, Submit, Create)
+2. Use Blue for navigation, headers, links
+3. Keep backgrounds white for readability
+4. Use shadows for depth and hierarchy
+5. Add left border to cards for visual interest
+6. Make headers blue with white text
+7. Use badges for status indicators
+8. Keep spacing consistent (6px, 12px, 24px)
+
+===========================================
+
+🚀 IMPLEMENTATION STATUS
+
+✅ CSS Variables Updated
+✅ Tailwind Config Updated
+✅ Component Classes Created
+✅ Gradients Updated
+✅ Shadows Updated
+✅ Color Palette Defined
+
+✅ Ready to use across the entire application!
+
+===========================================
+
+📝 NOTES FOR DEVELOPERS
+
+- All buttons now use .btn-primary (Orange) for main actions
+- Sidebar uses .sidebar class (Dark Blue gradient)
+- Tables use .table-premium (Blue header)
+- Cards use .card or .stat-card
+- Forms use .input-field and .label
+- Status uses .badge-* classes
+
+The entire UI now follows the Blue + White + Orange theme!
+
+===========================================

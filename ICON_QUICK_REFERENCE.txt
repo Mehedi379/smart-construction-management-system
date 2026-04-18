@@ -1,0 +1,120 @@
+===========================================
+ICON QUICK REFERENCE CARD
+Smart Construction Management System
+===========================================
+
+📏 ICON SIZES
+
+Extra Small (12px)  → Badges          .icon-xs
+Small (16px)        → Table actions   .icon-sm
+Medium (20px)       → Buttons/Forms   .icon-md
+Large (24px)        → Headers         .icon-lg
+Extra Large (32px)  → Stat cards      .icon-xl
+2X Large (40px)     → Hero displays   .icon-2xl
+
+===========================================
+
+🎨 ICON BUTTONS
+
+Edit/View (Blue):     <button class="icon-btn">
+Delete (Red):         <button class="icon-btn-danger">
+Approve (Green):      <button class="icon-btn-success">
+Warning (Orange):     <button class="icon-btn-warning">
+
+===========================================
+
+📦 ICON CONTAINERS
+
+Blue:    .icon-container-blue
+Orange:  .icon-container-orange
+Green:   .icon-container-green
+Red:     .icon-container-red
+Purple:  .icon-container-purple
+Gray:    .icon-container-gray
+
+===========================================
+
+🔧 COMMON ICONS
+
+➕ Add/Create:        Plus
+✏️ Edit:              Edit2 / Edit
+🗑️ Delete:            Trash2
+👁️ View:             Eye
+💾 Save:              Save
+📥 Download:          Download
+🖨️ Print:            Printer
+🔍 Search:            Search
+🔽 Filter:            Filter
+✅ Success:           CheckCircle
+❌ Error:             XCircle
+⏰ Pending:           Clock
+🔔 Notification:      Bell
+✍️ Signature:         PenTool
+⚠️ Warning:           AlertTriangle
+📊 Dashboard:         LayoutDashboard
+🏗️ Projects:          Building2
+👥 Users:             Users
+📄 Vouchers:          FileText
+📋 Sheets:            ClipboardList
+🛒 Purchases:         ShoppingCart
+💰 Expenses:          Wallet
+📚 Ledger:            BookOpen
+📈 Reports:           BarChart3
+🚪 Logout:            LogOut
+🔄 Refresh:           RefreshCw
+💵 Money:             DollarSign
+📈 Trending Up:       TrendingUp
+📉 Trending Down:     TrendingDown
+👷 Worker:            HardHat
+📝 Checklist:         ClipboardCheck
+🛡️ Admin:             Shield
+💾 Database:          Database
+🏢 Building:          Building2
+👤 User:              User
+⚡ Activity:          Activity
+📅 Calendar:          Calendar
+📷 Camera:            Camera
+📡 Scan:              Scan
+
+===========================================
+
+🎯 USAGE PATTERNS
+
+NAVIGATION:
+<item.icon className="nav-icon" />
+
+BUTTON WITH ICON:
+<button class="btn-primary">
+  <Plus className="btn-icon-left" />
+  Add New
+</button>
+
+ICON ONLY BUTTON:
+<button class="icon-btn" title="Edit">
+  <Edit2 className="table-action-icon" />
+</button>
+
+STAT CARD:
+<div class="bg-gradient-to-br from-blue-500 to-blue-600 p-3 rounded-xl">
+  <Building2 className="h-6 w-6 text-white" />
+</div>
+
+CONTAINER:
+<div class="icon-container-blue">
+  <FileText className="icon-md" />
+</div>
+
+===========================================
+
+✅ CHECKLIST
+
+Before deploying, check:
+☐ Icon size appropriate for context
+☐ Color matches action type
+☐ Hover effect working
+☐ Tooltip present (icon-only buttons)
+☐ Contrast sufficient
+☐ Alignment correct
+☐ Spacing consistent
+
+===========================================

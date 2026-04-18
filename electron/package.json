@@ -1,0 +1,24 @@
+{
+  "name": "smart-construction-desktop",
+  "version": "1.0.0",
+  "description": "Smart Construction Management System - Desktop Application",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron .",
+    "build": "electron-builder"
+  },
+  "dependencies": {
+    "electron": "^28.1.0"
+  },
+  "build": {
+    "appId": "com.khazabilkis.construction",
+    "productName": "Smart Construction Management",
+    "directories": {
+      "output": "dist"
+    },
+    "win": {
+      "target": ["nsis"],
+      "icon": "icon.ico"
+    }
+  }
+}

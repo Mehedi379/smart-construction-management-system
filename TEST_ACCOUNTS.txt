@@ -1,0 +1,58 @@
+==============================================
+  TEST ACCOUNTS - QUICK REFERENCE CARD
+==============================================
+
+PASSWORD FOR ALL ACCOUNTS: 123456
+
+----------------------------------------------
+1. ADMIN
+   Email: admin@test.com
+   Access: EVERYTHING
+   
+2. ACCOUNTANT
+   Email: accountant@test.com
+   Access: Financial Operations
+   
+3. SITE MANAGER
+   Email: sitemanager@test.com
+   Access: Project Operations
+   
+4. SITE ENGINEER
+   Email: engineer@test.com
+   Access: Technical Work
+   
+5. PROJECT DIRECTOR
+   Email: director@test.com
+   Access: Executive Oversight
+   
+6. DEPUTY DIRECTOR
+   Email: deputydirector@test.com
+   Access: Final Approvals
+   
+7. WORKER
+   Email: worker@test.com
+   Access: Very Limited
+----------------------------------------------
+
+LOGIN URL: http://localhost:3000
+
+TESTING ORDER:
+1. Admin (test everything)
+2. Accountant (test financial features)
+3. Site Manager (test project ops)
+4. Engineer (test daily sheets)
+5. Project Director (test approvals)
+6. Deputy Director (test final approvals)
+7. Worker (test restrictions)
+
+WHAT TO CHECK:
+✓ Login works
+✓ Dashboard loads
+✓ Can access allowed features
+✓ Cannot access restricted features
+✓ Financial calculations correct
+✓ Approval workflows work
+✓ No console errors
+✓ No blank pages
+
+==============================================

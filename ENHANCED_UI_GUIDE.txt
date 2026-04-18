@@ -1,0 +1,369 @@
+===========================================
+ENHANCED UI/UX COMPONENT GUIDE
+Blue + White + Orange Theme
+With Advanced Features
+===========================================
+
+🎨 ALL AVAILABLE CLASSES & COMPONENTS
+
+===========================================
+1️⃣ BUTTONS (With Icons & Animations)
+===========================================
+
+PRIMARY BUTTON (Orange - For Main Actions):
+<button class="btn-primary">
+  <svg>icon</svg>
+  Save Voucher
+</button>
+
+SECONDARY BUTTON (Blue - For Secondary Actions):
+<button class="btn-secondary">
+  <svg>icon</svg>
+  View Details
+</button>
+
+OUTLINE BUTTON:
+<button class="btn-outline">
+  <svg>icon</svg>
+  Filter
+</button>
+
+DANGER BUTTON (Red):
+<button class="btn-danger">
+  <svg>icon</svg>
+  Delete
+</button>
+
+SUCCESS BUTTON (Green):
+<button class="btn-success">
+  <svg>icon</svg>
+  Approve
+</button>
+
+ICON BUTTON (For tables/toolbars):
+<button class="btn-icon">
+  <svg>edit icon</svg>
+</button>
+
+<button class="btn-icon-danger">
+  <svg>delete icon</svg>
+</button>
+
+BUTTON SIZES:
+<button class="btn-primary btn-sm">Small</button>
+<button class="btn-primary">Default</button>
+<button class="btn-primary btn-lg">Large</button>
+
+DISABLED STATE:
+<button class="btn-primary" disabled>Loading...</button>
+
+===========================================
+2️⃣ CARDS (With Hover Effects)
+===========================================
+
+BASIC CARD:
+<div class="card">
+  <h3>Card Title</h3>
+  <p>Card content here</p>
+</div>
+
+STAT CARD (With Blue Left Border):
+<div class="stat-card">
+  <div class="flex items-center justify-between">
+    <div>
+      <p class="text-sm text-gray-600">Total Projects</p>
+      <p class="text-3xl font-bold text-gray-900 mt-1">12</p>
+      <p class="text-xs text-green-600 mt-1">↑ 8% from last month</p>
+    </div>
+    <div class="p-3 bg-blue-100 rounded-lg">
+      <svg class="w-6 h-6 text-blue-700">icon</svg>
+    </div>
+  </div>
+</div>
+
+HOVER LIFT CARD:
+<div class="card hover-lift">
+  <p>This card lifts on hover</p>
+</div>
+
+===========================================
+3️⃣ TABLES (Premium Styling)
+===========================================
+
+PREMIUM TABLE:
+<table class="table-premium">
+  <thead>
+    <tr>
+      <th>Name</th>
+      <th>Amount</th>
+      <th>Status</th>
+      <th>Actions</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Material Cost</td>
+      <td>৳ 5,000</td>
+      <td><span class="badge badge-success">Approved</span></td>
+      <td>
+        <button class="btn-icon" title="Edit">
+          <svg>edit</svg>
+        </button>
+        <button class="btn-icon-danger" title="Delete">
+          <svg>delete</svg>
+        </button>
+      </td>
+    </tr>
+  </tbody>
+</table>
+
+===========================================
+4️⃣ FORMS (Enhanced Inputs)
+===========================================
+
+INPUT FIELD:
+<label class="label">
+  Project Name <span class="text-red-500">*</span>
+</label>
+<input 
+  type="text" 
+  class="input-field focus-ring" 
+  placeholder="Enter project name"
+/>
+
+INPUT WITH ICON:
+<div class="relative">
+  <input 
+    type="email" 
+    class="input-field pl-10" 
+    placeholder="Email address"
+  />
+  <div class="absolute left-3 top-1/2 -translate-y-1/2">
+    <svg class="w-5 h-5 text-gray-400">email icon</svg>
+  </div>
+</div>
+
+TEXTAREA:
+<label class="label">Description</label>
+<textarea 
+  class="input-field focus-ring" 
+  rows="4"
+  placeholder="Enter description"
+></textarea>
+
+SELECT DROPDOWN:
+<label class="label">Category</label>
+<select class="input-field focus-ring">
+  <option>Material</option>
+  <option>Labor</option>
+  <option>Equipment</option>
+</select>
+
+===========================================
+5️⃣ BADGES (Status Indicators)
+===========================================
+
+<span class="badge badge-success">Approved</span>
+<span class="badge badge-warning">Pending</span>
+<span class="badge badge-error">Rejected</span>
+<span class="badge badge-info">In Review</span>
+
+===========================================
+6️⃣ SKELETON LOADERS
+===========================================
+
+CARD SKELETON:
+<div class="card">
+  <div class="skeleton h-6 w-3/4 rounded mb-3"></div>
+  <div class="skeleton h-4 w-full rounded mb-2"></div>
+  <div class="skeleton h-4 w-2/3 rounded"></div>
+</div>
+
+TABLE SKELETON:
+<tr>
+  <td><div class="skeleton h-5 w-32 rounded"></div></td>
+  <td><div class="skeleton h-5 w-24 rounded"></div></td>
+  <td><div class="skeleton h-5 w-20 rounded"></div></td>
+</tr>
+
+===========================================
+7️⃣ ANIMATIONS
+===========================================
+
+FADE IN:
+<div class="animate-fade-in">Content</div>
+
+SLIDE IN:
+<div class="animate-slide-in">Content</div>
+
+SCALE IN:
+<div class="animate-scale-in">Content</div>
+
+SLIDE UP:
+<div class="animate-slide-up">Content</div>
+
+SHIMMER (for loading):
+<div class="animate-shimmer">Loading...</div>
+
+===========================================
+8️⃣ GRADIENT BACKGROUNDS
+===========================================
+
+<div class="gradient-primary p-6 text-white">
+  Blue Gradient Background
+</div>
+
+<div class="gradient-action p-6 text-white">
+  Orange Gradient Background
+</div>
+
+<div class="gradient-success p-6 text-white">
+  Green Gradient Background
+</div>
+
+===========================================
+9️⃣ TEXT STYLES
+===========================================
+
+GRADIENT TEXT:
+<h1 class="text-gradient">Blue Gradient Title</h1>
+<h1 class="text-gradient-orange">Orange Gradient Title</h1>
+
+===========================================
+🔟 SCROLLBAR (Auto-styled)
+===========================================
+
+Scrollbars are now styled automatically:
+- Track: Light gray
+- Thumb: Blue
+- Hover: Darker blue
+
+===========================================
+1️⃣1️⃣ GLASS EFFECT
+===========================================
+
+<div class="glass p-6 rounded-xl">
+  Frosted glass effect
+</div>
+
+===========================================
+1️⃣2️⃣ FOCUS RING
+===========================================
+
+<input class="input-field focus-ring" />
+
+Adds blue ring on focus for better accessibility
+
+===========================================
+
+📋 COMPLETE EXAMPLE - ENHANCED CARD
+
+<div class="card animate-slide-up">
+  <!-- Header with Icon -->
+  <div class="flex items-center gap-3 mb-4">
+    <div class="p-2 bg-blue-100 rounded-lg">
+      <svg class="w-6 h-6 text-blue-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+      </svg>
+    </div>
+    <div>
+      <h3 class="text-lg font-bold text-gray-900">Voucher Details</h3>
+      <p class="text-sm text-gray-600">Payment information</p>
+    </div>
+  </div>
+  
+  <!-- Content -->
+  <div class="space-y-3 mb-4">
+    <div class="flex justify-between">
+      <span class="text-gray-600">Amount:</span>
+      <span class="font-semibold">৳ 15,000</span>
+    </div>
+    <div class="flex justify-between">
+      <span class="text-gray-600">Status:</span>
+      <span class="badge badge-success">Approved</span>
+    </div>
+  </div>
+  
+  <!-- Actions -->
+  <div class="flex gap-2 pt-4 border-t border-gray-200">
+    <button class="btn-primary btn-sm flex-1">
+      <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path>
+      </svg>
+      View
+    </button>
+    <button class="btn-outline btn-sm flex-1">
+      <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path>
+      </svg>
+      Download
+    </button>
+  </div>
+</div>
+
+===========================================
+
+🎯 BEST PRACTICES
+
+1. BUTTONS:
+   - Always add icons for better UX
+   - Use Orange for primary actions only
+   - Use Blue for secondary actions
+   - Add loading states
+   - Disable when loading
+
+2. CARDS:
+   - Use hover-lift for interactive cards
+   - Add icons in headers
+   - Include status badges
+   - Use consistent spacing
+
+3. TABLES:
+   - Use icon buttons for actions
+   - Add tooltips to icon buttons
+   - Use badges for status
+   - Add hover effects
+
+4. FORMS:
+   - Always use .focus-ring
+   - Add required field indicators (*)
+   - Use helper text
+   - Show validation states
+
+5. LOADING:
+   - Use skeleton loaders
+   - Add spinner for buttons
+   - Show progress for long operations
+
+===========================================
+
+🚀 WHAT'S NEW IN THIS UPDATE
+
+✅ All buttons now have icon support
+✅ Disabled states improved
+✅ Skeleton loaders added
+✅ Hover lift effects
+✅ Ripple effect on buttons
+✅ Custom scrollbar styling
+✅ More animations (slide-up, shimmer)
+✅ Text gradients
+✅ Focus ring utilities
+✅ Glass effect
+✅ Premium transitions
+✅ Better card hover effects
+
+===========================================
+
+💡 TIPS FOR BANGLADESHI USERS
+
+1. Use Bangla text where appropriate
+2. Keep forms simple and clear
+3. Use familiar icons
+4. Add helpful tooltips
+5. Use ৳ for currency
+6. Keep button text short
+7. Use familiar date formats
+8. Add clear error messages
+
+===========================================
