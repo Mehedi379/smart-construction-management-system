@@ -109,6 +109,7 @@ app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 // ============================================
 
 app.use('/api/auth', require('./src/routes/auth'));
+app.use('/api/setup', require('./src/routes/setup'));
 app.use('/api/employees', require('./src/routes/employees'));
 app.use('/api/projects', require('./src/routes/projects'));
 app.use('/api/vouchers', require('./src/routes/vouchers'));
