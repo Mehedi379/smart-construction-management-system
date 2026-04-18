@@ -1,28 +1,20 @@
 # Use Node.js 18
-FROM node:18-slim
+FROM node:18-alpine
 
-# Install dependencies for Puppeteer
-RUN apt-get update && apt-get install -y \
-    wget \
-    gnupg \
-    && wget -q -O - https://dl-ssl.google.com/linux/linux_signing_key.pub | apt-key add - \
-    && sh -c 'echo "deb [arch=amd64] http://dl.google.com/linux/chrome/deb/ stable main" >> /etc/apt/sources.list.d/google.list' \
-    && apt-get update \
-    && apt-get install -y google-chrome-stable fonts-ipafont-gothic fonts-wqy-zenhei fonts-thai-tlwg fonts-kacst fonts-freefont-ttf libxss1 \
-    --no-install-recommends \
-    && rm -rf /var/lib/apt/lists/*
-
-# Set working directory to backend
-WORKDIR /app/backend
+# Set working directory
+WORKDIR /app
 
 # Copy backend package files
 COPY backend/package*.json ./
 
 # Install dependencies
-RUN npm ci --only=production
+RUN npm ci --only=production && npm cache clean --force
 
 # Copy backend source code
 COPY backend/ .
+
+# Create uploads directory
+RUN mkdir -p uploads
 
 # Set environment variables
 ENV NODE_ENV=production
@@ -30,6 +22,10 @@ ENV PORT=9000
 
 # Expose port
 EXPOSE 9000
+
+# Health check
+HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
+  CMD node -e "require('http').get('http://localhost:9000/api/health', (r) => {process.exit(r.statusCode === 200 ? 0 : 1)})"
 
 # Start the server
 CMD ["node", "server.js"]

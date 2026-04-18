@@ -1,0 +1,13 @@
+node_modules
+npm-debug.log
+.git
+.gitignore
+*.md
+.env
+.DS_Store
+frontend/
+database/
+.qoder/
+.github/
+*.bat
+*.ps1
