@@ -117,4 +117,42 @@ router.post('/init-database', async (req, res) => {
     }
 });
 
+// Test Database Connection
+router.post('/test-connection', async (req, res) => {
+    try {
+        console.log('🔍 Testing database connection...');
+        console.log('DB_HOST:', process.env.DB_HOST);
+        console.log('DB_PORT:', process.env.DB_PORT);
+        console.log('DB_USER:', process.env.DB_USER);
+        console.log('DB_NAME:', process.env.DB_NAME);
+        
+        const pool = require('../config/database');
+        const [rows] = await pool.query('SELECT 1 as test');
+        
+        res.json({
+            success: true,
+            message: 'Database connection successful!',
+            config: {
+                host: process.env.DB_HOST,
+                port: process.env.DB_PORT,
+                user: process.env.DB_USER,
+                database: process.env.DB_NAME
+            }
+        });
+    } catch (error) {
+        console.error('❌ Test connection error:', error.message);
+        res.status(500).json({
+            success: false,
+            message: 'Connection failed',
+            error: error.message,
+            config: {
+                host: process.env.DB_HOST,
+                port: process.env.DB_PORT,
+                user: process.env.DB_USER,
+                database: process.env.DB_NAME
+            }
+        });
+    }
+});
+
 module.exports = router;
