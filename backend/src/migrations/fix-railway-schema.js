@@ -331,6 +331,205 @@ async function fixRailwaySchema() {
         
         console.log('\n✅ Database schema migration completed successfully!\n');
         
+        // Fix 10: Create missing daily sheet and signature tables
+        console.log('\n📋 Checking daily sheet related tables...');
+        
+        // Check signature_requests table
+        const [sigRequestTables] = await connection.query("SHOW TABLES LIKE 'signature_requests'");
+        if (sigRequestTables.length === 0) {
+            console.log('⚠️  Creating signature_requests table...');
+            await connection.query(`
+                CREATE TABLE signature_requests (
+                    id INT AUTO_INCREMENT PRIMARY KEY,
+                    sheet_id INT NOT NULL,
+                    role_code VARCHAR(50) NOT NULL,
+                    role_name VARCHAR(100) NOT NULL,
+                    status ENUM('pending', 'signed', 'rejected') DEFAULT 'pending',
+                    requested_by INT,
+                    signed_by INT,
+                    signed_at TIMESTAMP NULL,
+                    rejection_reason TEXT,
+                    requested_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                    FOREIGN KEY (sheet_id) REFERENCES daily_sheets(id) ON DELETE CASCADE,
+                    FOREIGN KEY (requested_by) REFERENCES users(id) ON DELETE SET NULL,
+                    FOREIGN KEY (signed_by) REFERENCES users(id) ON DELETE SET NULL,
+                    INDEX idx_sheet (sheet_id),
+                    INDEX idx_role (role_code),
+                    INDEX idx_status (status)
+                )
+            `);
+            console.log('✅ signature_requests table created');
+        } else {
+            console.log('✅ signature_requests table already exists');
+        }
+        
+        // Check sheet_workflows table
+        const [sheetWorkflowTables] = await connection.query("SHOW TABLES LIKE 'sheet_workflows'");
+        if (sheetWorkflowTables.length === 0) {
+            console.log('⚠️  Creating sheet_workflows table...');
+            await connection.query(`
+                CREATE TABLE sheet_workflows (
+                    id INT AUTO_INCREMENT PRIMARY KEY,
+                    workflow_id VARCHAR(50) UNIQUE NOT NULL,
+                    sheet_id INT NOT NULL UNIQUE,
+                    project_id INT,
+                    current_step INT DEFAULT 1,
+                    status ENUM('pending', 'in_review', 'approved', 'rejected') DEFAULT 'pending',
+                    started_by INT,
+                    started_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                    completed_at TIMESTAMP NULL,
+                    FOREIGN KEY (sheet_id) REFERENCES daily_sheets(id) ON DELETE CASCADE,
+                    FOREIGN KEY (project_id) REFERENCES projects(id) ON DELETE SET NULL,
+                    FOREIGN KEY (started_by) REFERENCES users(id) ON DELETE SET NULL,
+                    INDEX idx_sheet (sheet_id),
+                    INDEX idx_status (status)
+                )
+            `);
+            console.log('✅ sheet_workflows table created');
+        } else {
+            console.log('✅ sheet_workflows table already exists');
+        }
+        
+        // Check workflow_steps table
+        const [workflowStepTables] = await connection.query("SHOW TABLES LIKE 'workflow_steps'");
+        if (workflowStepTables.length === 0) {
+            console.log('⚠️  Creating workflow_steps table...');
+            await connection.query(`
+                CREATE TABLE workflow_steps (
+                    id INT AUTO_INCREMENT PRIMARY KEY,
+                    workflow_id INT NOT NULL,
+                    step_number INT NOT NULL,
+                    role_id INT NOT NULL,
+                    step_name VARCHAR(100) NOT NULL,
+                    action_required ENUM('signature', 'review', 'approval') DEFAULT 'signature',
+                    FOREIGN KEY (workflow_id) REFERENCES sheet_workflows(id) ON DELETE CASCADE,
+                    INDEX idx_workflow (workflow_id)
+                )
+            `);
+            console.log('✅ workflow_steps table created');
+        } else {
+            console.log('✅ workflow_steps table already exists');
+        }
+        
+        // Check universal_signatures table
+        const [universalSigTables] = await connection.query("SHOW TABLES LIKE 'universal_signatures'");
+        if (universalSigTables.length === 0) {
+            console.log('⚠️  Creating universal_signatures table...');
+            await connection.query(`
+                CREATE TABLE universal_signatures (
+                    id INT AUTO_INCREMENT PRIMARY KEY,
+                    entity_type VARCHAR(50) NOT NULL,
+                    entity_id INT NOT NULL,
+                    workflow_id INT,
+                    step_number INT,
+                    user_id INT NOT NULL,
+                    role_id INT,
+                    action ENUM('signed', 'rejected', 'reviewed') NOT NULL,
+                    signature_data TEXT,
+                    comments TEXT,
+                    ip_address VARCHAR(45),
+                    signed_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                    INDEX idx_entity (entity_type, entity_id),
+                    INDEX idx_user (user_id)
+                )
+            `);
+            console.log('✅ universal_signatures table created');
+        } else {
+            console.log('✅ universal_signatures table already exists');
+        }
+        
+        // Check roles table
+        const [roleTables] = await connection.query("SHOW TABLES LIKE 'roles'");
+        if (roleTables.length === 0) {
+            console.log('⚠️  Creating roles table...');
+            await connection.query(`
+                CREATE TABLE roles (
+                    id INT AUTO_INCREMENT PRIMARY KEY,
+                    role_code VARCHAR(50) UNIQUE NOT NULL,
+                    role_name VARCHAR(100) NOT NULL,
+                    description TEXT,
+                    step_order INT,
+                    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+                )
+            `);
+            console.log('✅ roles table created');
+            
+            // Insert default roles
+            console.log('   Inserting default roles...');
+            await connection.query(`
+                INSERT INTO roles (role_code, role_name, step_order) VALUES
+                ('site_manager', 'Site Manager', 1),
+                ('site_engineer', 'Site Engineer', 2),
+                ('head_office_accounts_1', 'Head Office Accounts 1', 3),
+                ('head_office_accounts_2', 'Head Office Accounts 2', 4),
+                ('deputy_head_office', 'Deputy Head Office', 5),
+                ('site_director', 'Site Director', 6),
+                ('project_director', 'Project Director', 7),
+                ('deputy_director', 'Deputy Director', 8)
+            `);
+            console.log('   ✅ Default roles inserted');
+        } else {
+            console.log('✅ roles table already exists');
+        }
+        
+        // Check daily_sheet_items table
+        const [sheetItemTables] = await connection.query("SHOW TABLES LIKE 'daily_sheet_items'");
+        if (sheetItemTables.length === 0) {
+            console.log('⚠️  Creating daily_sheet_items table...');
+            await connection.query(`
+                CREATE TABLE daily_sheet_items (
+                    id INT AUTO_INCREMENT PRIMARY KEY,
+                    sheet_id INT NOT NULL,
+                    item_no INT NOT NULL,
+                    description TEXT,
+                    qty DECIMAL(10, 2) DEFAULT 0,
+                    rate DECIMAL(10, 2) DEFAULT 0,
+                    amount DECIMAL(15, 2) DEFAULT 0,
+                    source VARCHAR(50) DEFAULT 'manual',
+                    source_id INT,
+                    FOREIGN KEY (sheet_id) REFERENCES daily_sheets(id) ON DELETE CASCADE,
+                    INDEX idx_sheet (sheet_id)
+                )
+            `);
+            console.log('✅ daily_sheet_items table created');
+        } else {
+            console.log('✅ daily_sheet_items table already exists');
+        }
+        
+        // Check daily_sheet_signatures table
+        const [sheetSigTables] = await connection.query("SHOW TABLES LIKE 'daily_sheet_signatures'");
+        if (sheetSigTables.length === 0) {
+            console.log('⚠️  Creating daily_sheet_signatures table...');
+            await connection.query(`
+                CREATE TABLE daily_sheet_signatures (
+                    id INT AUTO_INCREMENT PRIMARY KEY,
+                    sheet_id INT NOT NULL UNIQUE,
+                    receiver_signature TEXT,
+                    receiver_name VARCHAR(100),
+                    receiver_date DATE,
+                    payer_signature TEXT,
+                    payer_name VARCHAR(100),
+                    payer_date DATE,
+                    prepared_by_signature TEXT,
+                    prepared_by_name VARCHAR(100),
+                    prepared_by_date DATE,
+                    checked_by_signature TEXT,
+                    checked_by_name VARCHAR(100),
+                    checked_by_date DATE,
+                    approved_by_signature TEXT,
+                    approved_by_name VARCHAR(100),
+                    approved_by_date DATE,
+                    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                    FOREIGN KEY (sheet_id) REFERENCES daily_sheets(id) ON DELETE CASCADE
+                )
+            `);
+            console.log('✅ daily_sheet_signatures table created');
+        } else {
+            console.log('✅ daily_sheet_signatures table already exists');
+        }
+        
+        console.log('\n✅ Database schema migration completed successfully!\n');
+        
         connection.release();
         
     } catch (error) {
