@@ -369,9 +369,12 @@ async function fixRailwaySchema() {
         if (!dailySheetColumnNames.includes('receipt_image')) missingDailySheetColumns.push('receipt_image VARCHAR(255) AFTER remaining_balance');
         if (!dailySheetColumnNames.includes('ocr_text')) missingDailySheetColumns.push('ocr_text TEXT AFTER receipt_image');
         if (!dailySheetColumnNames.includes('created_by')) missingDailySheetColumns.push('created_by INT AFTER ocr_text');
-        if (!dailySheetColumnNames.includes('is_locked')) missingDailySheetColumns.push('is_locked BOOLEAN DEFAULT FALSE AFTER status');
+        if (!dailySheetColumnNames.includes('submitted_by')) missingDailySheetColumns.push('submitted_by INT AFTER created_by');
+        if (!dailySheetColumnNames.includes('approved_by')) missingDailySheetColumns.push('approved_by INT AFTER submitted_by');
+        if (!dailySheetColumnNames.includes('rejected_by')) missingDailySheetColumns.push('rejected_by INT AFTER approved_by');
         if (!dailySheetColumnNames.includes('rejection_reason')) missingDailySheetColumns.push('rejection_reason TEXT AFTER rejected_by');
         if (!dailySheetColumnNames.includes('rejected_at')) missingDailySheetColumns.push('rejected_at TIMESTAMP NULL AFTER rejection_reason');
+        if (!dailySheetColumnNames.includes('is_locked')) missingDailySheetColumns.push('is_locked BOOLEAN DEFAULT FALSE AFTER status');
         
         if (missingDailySheetColumns.length > 0) {
             console.log(`⚠️  Adding ${missingDailySheetColumns.length} missing column(s) to daily_sheets table...`);
@@ -392,6 +395,25 @@ async function fixRailwaySchema() {
             } catch (err) {
                 // Foreign key might already exist
             }
+            
+            // Add foreign keys for other user columns
+            try {
+                await connection.query(
+                    "ALTER TABLE daily_sheets ADD CONSTRAINT fk_sheet_submitted_by FOREIGN KEY (submitted_by) REFERENCES users(id) ON DELETE SET NULL"
+                );
+            } catch (err) {}
+            
+            try {
+                await connection.query(
+                    "ALTER TABLE daily_sheets ADD CONSTRAINT fk_sheet_approved_by FOREIGN KEY (approved_by) REFERENCES users(id) ON DELETE SET NULL"
+                );
+            } catch (err) {}
+            
+            try {
+                await connection.query(
+                    "ALTER TABLE daily_sheets ADD CONSTRAINT fk_sheet_rejected_by FOREIGN KEY (rejected_by) REFERENCES users(id) ON DELETE SET NULL"
+                );
+            } catch (err) {}
             
             console.log('✅ Missing daily_sheets columns added successfully');
         } else if (dailySheetColumnNames.includes('sheet_no') && dailySheetColumnNames.includes('sheet_date')) {
