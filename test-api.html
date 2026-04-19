@@ -137,31 +137,37 @@
                 body: { email: 'admin@khazabilkis.com', password: 'admin123' }
             },
             {
-                name: '3. Get User Stats',
+                name: '3. Add Missing Tables',
+                endpoint: '/setup/add-tables',
+                method: 'POST',
+                requiresAuth: false
+            },
+            {
+                name: '4. Get User Stats',
                 endpoint: '/auth/all-user-stats',
                 method: 'GET',
                 requiresAuth: true
             },
             {
-                name: '4. Get Dashboard Stats',
+                name: '5. Get Dashboard Stats',
                 endpoint: '/reports/dashboard',
                 method: 'GET',
                 requiresAuth: true
             },
             {
-                name: '5. Get Projects',
+                name: '6. Get Projects',
                 endpoint: '/projects',
                 method: 'GET',
                 requiresAuth: true
             },
             {
-                name: '6. Get Employees',
+                name: '7. Get Employees',
                 endpoint: '/employees',
                 method: 'GET',
                 requiresAuth: true
             },
             {
-                name: '7. Get Vouchers',
+                name: '8. Get Vouchers',
                 endpoint: '/vouchers',
                 method: 'GET',
                 requiresAuth: true

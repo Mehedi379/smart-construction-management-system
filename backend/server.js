@@ -255,6 +255,16 @@ const server = app.listen(PORT, '0.0.0.0', async () => {
         console.log('ℹ️  Database tables already exist:', err.message);
     }
     
+    // Fix Railway database schema if needed
+    try {
+        console.log('🔧 Checking database schema compatibility...');
+        const fixRailwaySchema = require('./src/migrations/fix-railway-schema');
+        await fixRailwaySchema();
+        console.log('✅ Database schema verified');
+    } catch (err) {
+        console.log('⚠️  Schema check completed:', err.message);
+    }
+    
     console.log('\n✅✅✅ Server is READY to accept requests! ✅✅✅\n');
 });
 
