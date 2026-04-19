@@ -157,11 +157,15 @@ exports.login = async (req, res) => {
             { expiresIn: process.env.JWT_EXPIRES_IN || '7d' }
         );
 
-        // Update last login
-        await pool.query(
-            'UPDATE users SET last_login = NOW() WHERE id = ?',
-            [user.id]
-        );
+        // Update last login (ignore if column doesn't exist)
+        try {
+            await pool.query(
+                'UPDATE users SET last_login = NOW() WHERE id = ?',
+                [user.id]
+            );
+        } catch (err) {
+            console.log('⚠️  Could not update last_login:', err.message);
+        }
 
         // Get employee details
         const [employees] = await pool.query(
