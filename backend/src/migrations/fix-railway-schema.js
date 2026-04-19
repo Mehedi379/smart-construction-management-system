@@ -368,6 +368,7 @@ async function fixRailwaySchema() {
         if (!dailySheetColumnNames.includes('remaining_balance')) missingDailySheetColumns.push('remaining_balance DECIMAL(15, 2) DEFAULT 0 AFTER today_expense');
         if (!dailySheetColumnNames.includes('receipt_image')) missingDailySheetColumns.push('receipt_image VARCHAR(255) AFTER remaining_balance');
         if (!dailySheetColumnNames.includes('ocr_text')) missingDailySheetColumns.push('ocr_text TEXT AFTER receipt_image');
+        if (!dailySheetColumnNames.includes('created_by')) missingDailySheetColumns.push('created_by INT AFTER ocr_text');
         if (!dailySheetColumnNames.includes('is_locked')) missingDailySheetColumns.push('is_locked BOOLEAN DEFAULT FALSE AFTER status');
         if (!dailySheetColumnNames.includes('rejection_reason')) missingDailySheetColumns.push('rejection_reason TEXT AFTER rejected_by');
         if (!dailySheetColumnNames.includes('rejected_at')) missingDailySheetColumns.push('rejected_at TIMESTAMP NULL AFTER rejection_reason');
@@ -381,6 +382,15 @@ async function fixRailwaySchema() {
                 await connection.query(
                     `ALTER TABLE daily_sheets ADD COLUMN ${columnDef}`
                 );
+            }
+            
+            // Add foreign key for created_by
+            try {
+                await connection.query(
+                    "ALTER TABLE daily_sheets ADD CONSTRAINT fk_sheet_created_by FOREIGN KEY (created_by) REFERENCES users(id) ON DELETE SET NULL"
+                );
+            } catch (err) {
+                // Foreign key might already exist
             }
             
             console.log('✅ Missing daily_sheets columns added successfully');
