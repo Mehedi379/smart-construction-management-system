@@ -110,6 +110,8 @@ exports.login = async (req, res) => {
     try {
         const { email, password } = req.body;
 
+        console.log('🔐 Login attempt for:', email);
+
         // Find user
         const [users] = await pool.query(
             'SELECT * FROM users WHERE email = ?',
@@ -117,6 +119,7 @@ exports.login = async (req, res) => {
         );
 
         if (users.length === 0) {
+            console.log('❌ User not found:', email);
             return res.status(401).json({
                 success: false,
                 message: 'Invalid email or password'
@@ -124,15 +127,19 @@ exports.login = async (req, res) => {
         }
 
         const user = users[0];
+        console.log('✅ User found:', user.email, 'Role:', user.role);
 
         // Verify password
         const isPasswordValid = await bcrypt.compare(password, user.password);
         if (!isPasswordValid) {
+            console.log('❌ Invalid password for:', email);
             return res.status(401).json({
                 success: false,
                 message: 'Invalid email or password'
             });
         }
+
+        console.log('✅ Password verified');
 
         // Check approval status
         if (!user.is_approved) {
@@ -157,27 +164,36 @@ exports.login = async (req, res) => {
             { expiresIn: process.env.JWT_EXPIRES_IN || '7d' }
         );
 
-        // Update last login (ignore if column doesn't exist)
+        console.log('✅ Token generated');
+
+        // Update last login (ignore errors)
         try {
             await pool.query(
                 'UPDATE users SET last_login = NOW() WHERE id = ?',
                 [user.id]
             );
         } catch (err) {
-            console.log('⚠️  Could not update last_login:', err.message);
+            console.log('⚠️  Skipping last_login update');
         }
 
-        // Get employee details
-        const [employees] = await pool.query(
-            'SELECT id, employee_id, assigned_project_id FROM employees WHERE user_id = ?',
-            [user.id]
-        );
+        // Get employee details (ignore errors)
+        let employeeData = null;
+        try {
+            const [employees] = await pool.query(
+                'SELECT id, employee_id, assigned_project_id FROM employees WHERE user_id = ?',
+                [user.id]
+            );
+            employeeData = employees[0] || null;
+        } catch (err) {
+            console.log('⚠️  Skipping employee data fetch');
+        }
 
         // Office roles need employee records for project assignment (ID-WISE)
         // Only admin has global access
         const globalAccessRoles = ['admin'];
-        
-        const isRegistered = globalAccessRoles.includes(user.role) || employees.length > 0;
+        const isRegistered = globalAccessRoles.includes(user.role) || employeeData !== null;
+
+        console.log('✅ Login successful for:', email);
 
         res.json({
             success: true,
@@ -190,19 +206,19 @@ exports.login = async (req, res) => {
                     email: user.email,
                     role: user.role,
                     is_registered: isRegistered,
-                    assigned_project_id: employees[0]?.assigned_project_id || null
+                    assigned_project_id: employeeData?.assigned_project_id || null
                 }
             }
         });
 
     } catch (error) {
-        console.error('Login error:', error);
-        console.error('Error details:', error.message);
-        console.error('Error code:', error.code);
+        console.error('❌ Login error:', error.message);
+        console.error('❌ Error code:', error.code);
+        console.error('❌ Full error:', error);
         res.status(500).json({
             success: false,
             message: 'Login failed',
-            error: process.env.NODE_ENV === 'development' ? error.message : undefined,
+            error: process.env.NODE_ENV === 'development' ? error.message : 'Internal server error',
             errorCode: error.code || 'UNKNOWN'
         });
     }
