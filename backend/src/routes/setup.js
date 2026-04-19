@@ -219,4 +219,73 @@ router.post('/fix-admin', async (req, res) => {
     }
 });
 
+// Fix Database Schema - Add Missing Columns
+router.post('/fix-schema', async (req, res) => {
+    try {
+        console.log('🔧 Fixing database schema...');
+        
+        const pool = require('../config/database');
+        
+        const columnsToAdd = [
+            {
+                name: 'last_login',
+                sql: 'ALTER TABLE users ADD COLUMN last_login TIMESTAMP NULL'
+            },
+            {
+                name: 'status',
+                sql: "ALTER TABLE users ADD COLUMN status VARCHAR(20) DEFAULT 'inactive'"
+            },
+            {
+                name: 'approved_by',
+                sql: 'ALTER TABLE users ADD COLUMN approved_by INT NULL'
+            },
+            {
+                name: 'approved_at',
+                sql: 'ALTER TABLE users ADD COLUMN approved_at TIMESTAMP NULL'
+            }
+        ];
+        
+        const results = [];
+        
+        for (const column of columnsToAdd) {
+            try {
+                // Check if column exists
+                const [columns] = await pool.query(
+                    'SELECT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = ? AND COLUMN_NAME = ?',
+                    ['users', column.name]
+                );
+                
+                if (columns.length === 0) {
+                    await pool.query(column.sql);
+                    results.push({ column: column.name, status: 'added' });
+                    console.log(`✅ Added column: ${column.name}`);
+                } else {
+                    results.push({ column: column.name, status: 'already exists' });
+                    console.log(`✓ Column exists: ${column.name}`);
+                }
+            } catch (error) {
+                if (error.code === 'ER_DUP_FIELDNAME') {
+                    results.push({ column: column.name, status: 'already exists' });
+                } else {
+                    results.push({ column: column.name, status: 'error', message: error.message });
+                }
+            }
+        }
+        
+        res.json({
+            success: true,
+            message: 'Database schema fixed!',
+            columns: results
+        });
+        
+    } catch (error) {
+        console.error('❌ Fix schema error:', error);
+        res.status(500).json({
+            success: false,
+            message: 'Failed to fix schema',
+            error: error.message
+        });
+    }
+});
+
 module.exports = router;
