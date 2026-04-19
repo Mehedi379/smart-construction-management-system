@@ -205,7 +205,7 @@ app.use((err, req, res, next) => {
 // START SERVER
 // ============================================
 
-const server = app.listen(PORT, () => {
+const server = app.listen(PORT, async () => {
     console.log('\n========================================');
     console.log('🏗️  Smart Construction Management System');
     console.log('========================================');
@@ -215,6 +215,14 @@ const server = app.listen(PORT, () => {
     console.log(`🔗 API URL: http://localhost:${PORT}/api`);
     console.log(`📊 Health Check: http://localhost:${PORT}/api/health`);
     console.log('========================================\n');
+    
+    // Auto-setup database tables on first run
+    try {
+        const setupDb = require('./setup-database');
+        await setupDb();
+    } catch (err) {
+        console.log('ℹ️  Database already setup or error:', err.message);
+    }
     
     // Run automatic ID verification on startup
     if (process.env.NODE_ENV === 'development' || process.env.AUTO_VERIFY === 'true') {
