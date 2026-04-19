@@ -12,8 +12,17 @@ console.log('  DB_PORT:', process.env.DB_PORT);
 console.log('  MYSQLPORT:', process.env.MYSQLPORT);
 console.log('  DB_USER:', process.env.DB_USER);
 console.log('  DB_PASSWORD:', process.env.DB_PASSWORD ? 'Set (length: ' + process.env.DB_PASSWORD.length + ')' : 'undefined');
+console.log('  MYSQLPASSWORD:', process.env.MYSQLPASSWORD ? 'Set (length: ' + process.env.MYSQLPASSWORD.length + ')' : 'undefined');
 console.log('  DB_NAME:', process.env.DB_NAME);
 console.log('  NODE_ENV:', process.env.NODE_ENV);
+
+// Show all variable names that contain 'PASSWORD'
+console.log('\n🔍 All PASSWORD variables:');
+Object.keys(process.env).forEach(key => {
+    if (key.includes('PASSWORD') || key.includes('PASS')) {
+        console.log(`  ${key}: Set (length: ${process.env[key].length})`);
+    }
+});
 
 // Railway uses both internal and external variables
 // Try multiple possible variable names for host
