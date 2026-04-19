@@ -267,20 +267,29 @@ async function fixRailwaySchema() {
         
         // Rename project_id to project_code if project_id exists but project_code doesn't
         if (projectColumnNames.includes('project_id') && !projectColumnNames.includes('project_code')) {
-            console.log('   - Renaming project_id to project_code...');
+            console.log('   - Attempting to rename project_id to project_code...');
             try {
+                // First, drop the unique index on project_id
+                await connection.query(
+                    "ALTER TABLE projects DROP INDEX idx_project_id"
+                ).catch(() => {});
+                
+                // Then rename the column
                 await connection.query(
                     "ALTER TABLE projects CHANGE COLUMN project_id project_code VARCHAR(20) UNIQUE NOT NULL"
                 );
-                console.log('   ✅ Renamed project_id to project_code');
+                console.log('   ✅ Successfully renamed project_id to project_code');
             } catch (err) {
-                console.log('   ⚠️  Failed to rename, will add project_code separately');
-                // If rename fails, make project_id nullable and add project_code
+                console.log('   ⚠️  Rename failed, making project_id nullable and adding project_code...');
+                // If rename fails, make project_id nullable
                 try {
                     await connection.query(
-                        "ALTER TABLE projects MODIFY COLUMN project_id VARCHAR(20) NULL"
+                        "ALTER TABLE projects MODIFY COLUMN project_id VARCHAR(20) NULL DEFAULT NULL"
                     );
-                } catch (err2) {}
+                    console.log('   ✅ Made project_id nullable');
+                } catch (err2) {
+                    console.log('   ⚠️  Could not modify project_id:', err2.message);
+                }
             }
         }
         
