@@ -139,88 +139,32 @@ exports.getMonthlyReport = async (year, month) => {
 exports.getDashboardStats = async (user = null, projectFilter = null) => {
     console.log('=== GET DASHBOARD STATS ===');
     
-    try {
-        // Determine project filter for ID-wise access
-        let projectIdFilter = null;
-        
-        // Non-admin users: filter by their assigned project
-        if (projectFilter && !projectFilter.isAdmin && projectFilter.projectId) {
-            projectIdFilter = projectFilter.projectId;
-            console.log('ID-WISE FILTER: Project ID =', projectIdFilter);
-        }
-        
-        // Today's expenses
-        const today = new Date().toISOString().split('T')[0];
-        console.log('Today:', today);
-        
-        let todayExpensesQuery = `
-            SELECT COALESCE(SUM(amount), 0) as total
-            FROM expenses
-            WHERE expense_date = ?
-        `;
-        let todayExpensesParams = [today];
-        
-        if (projectIdFilter) {
-            todayExpensesQuery += ' AND project_id = ?';
-            todayExpensesParams.push(projectIdFilter);
-        }
-        
-        const [todayExpenses] = await require('../config/database').query(todayExpensesQuery, todayExpensesParams);
-        
-        // Total projects
-        let totalProjectsQuery = 'SELECT COUNT(*) as total FROM projects';
-        let totalProjectsParams = [];
-        
-        if (projectIdFilter) {
-            totalProjectsQuery += ' WHERE id = ?';
-            totalProjectsParams.push(projectIdFilter);
-        }
-        
-        const [projects] = await require('../config/database').query(totalProjectsQuery, totalProjectsParams);
-        
-        // Total employees
-        const [employees] = await require('../config/database').query(
-            'SELECT COUNT(*) as total FROM employees WHERE status = ?',
-            ['active']
-        );
-        
-        // Pending vouchers
-        let pendingVouchersQuery = `
-            SELECT COUNT(*) as total FROM vouchers 
-            WHERE status = 'pending'
-        `;
-        let pendingVouchersParams = [];
-        
-        if (projectIdFilter) {
-            pendingVouchersQuery += ' AND project_id = ?';
-            pendingVouchersParams.push(projectIdFilter);
-        }
-        
-        const [pendingVouchers] = await require('../config/database').query(pendingVouchersQuery, pendingVouchersParams);
-        
-        const stats = {
-            today_expenses: todayExpenses[0].total,
-            total_projects: projects[0].total,
-            total_employees: employees[0].total,
-            pending_vouchers: pendingVouchers[0].total
-        };
-        
-        console.log('Dashboard stats:', stats);
-        return stats;
-        
-    } catch (error) {
-        console.error('❌ getDashboardStats error:', error.message);
-        // Return default stats instead of failing
-        return {
-            today_expenses: 0,
-            total_projects: 0,
-            total_employees: 0,
-            pending_vouchers: 0
-        };
+    // Determine project filter for ID-wise access
+    let projectIdFilter = null;
+    
+    // Non-admin users: filter by their assigned project
+    if (projectFilter && !projectFilter.isAdmin && projectFilter.projectId) {
+        projectIdFilter = projectFilter.projectId;
+        console.log('ID-WISE FILTER: Project ID =', projectIdFilter);
     }
-};
-
-// Old code removed - function moved above
+    
+    // Today's expenses
+    const today = new Date().toISOString().split('T')[0];
+    console.log('Today:', today);
+    
+    let todayExpensesQuery = `
+        SELECT COALESCE(SUM(amount), 0) as total
+        FROM expenses
+        WHERE expense_date = ?
+    `;
+    let todayExpensesParams = [today];
+    
+    if (projectIdFilter) {
+        todayExpensesQuery += ' AND project_id = ?';
+        todayExpensesParams.push(projectIdFilter);
+    }
+    
+    const [todayExpenses] = await pool.query(todayExpensesQuery, todayExpensesParams);
     console.log('Today expenses:', todayExpenses[0].total);
 
     // Total income (approved receipts) - ID-wise
