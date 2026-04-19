@@ -268,6 +268,13 @@ async function fixRailwaySchema() {
         
         if (!projectColumnNames.includes('project_code')) missingProjectColumns.push('project_code VARCHAR(20) UNIQUE AFTER id');
         if (!projectColumnNames.includes('client_id')) missingProjectColumns.push('client_id INT AFTER project_name');
+        if (!projectColumnNames.includes('location')) missingProjectColumns.push('location TEXT AFTER client_id');
+        if (!projectColumnNames.includes('estimated_budget')) missingProjectColumns.push('estimated_budget DECIMAL(15, 2) DEFAULT 0.00 AFTER location');
+        if (!projectColumnNames.includes('actual_cost')) missingProjectColumns.push('actual_cost DECIMAL(15, 2) DEFAULT 0.00 AFTER estimated_budget');
+        if (!projectColumnNames.includes('start_date')) missingProjectColumns.push('start_date DATE AFTER actual_cost');
+        if (!projectColumnNames.includes('end_date')) missingProjectColumns.push('end_date DATE AFTER start_date');
+        if (!projectColumnNames.includes('description')) missingProjectColumns.push('description TEXT AFTER end_date');
+        if (!projectColumnNames.includes('created_by')) missingProjectColumns.push('created_by INT AFTER description');
         
         if (missingProjectColumns.length > 0) {
             console.log(`⚠️  Adding ${missingProjectColumns.length} missing column(s) to projects table...`);
@@ -280,14 +287,18 @@ async function fixRailwaySchema() {
                 );
             }
             
-            // Add foreign key for client_id
+            // Add foreign keys
             try {
                 await connection.query(
                     "ALTER TABLE projects ADD CONSTRAINT fk_project_client FOREIGN KEY (client_id) REFERENCES clients(id) ON DELETE SET NULL"
                 );
-            } catch (err) {
-                // Foreign key might already exist
-            }
+            } catch (err) {}
+            
+            try {
+                await connection.query(
+                    "ALTER TABLE projects ADD CONSTRAINT fk_project_created_by FOREIGN KEY (created_by) REFERENCES users(id) ON DELETE SET NULL"
+                );
+            } catch (err) {}
             
             console.log('✅ Missing project columns added successfully');
         } else {
