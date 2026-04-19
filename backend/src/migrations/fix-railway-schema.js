@@ -400,6 +400,67 @@ async function fixRailwaySchema() {
             console.log('   ⚠️  Could not update actual_cost');
         }
         
+        // Fix 10: Create missing workflow_templates table
+        console.log('\n📋 Checking workflow_templates table...');
+        try {
+            await connection.query(`
+                CREATE TABLE IF NOT EXISTS workflow_templates (
+                    id INT AUTO_INCREMENT PRIMARY KEY,
+                    entity_type VARCHAR(50) NOT NULL,
+                    entity_id INT,
+                    name VARCHAR(100) NOT NULL,
+                    description TEXT,
+                    steps JSON,
+                    is_active BOOLEAN DEFAULT TRUE,
+                    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+                )
+            `);
+            console.log('✅ workflow_templates table created');
+            
+            // Insert default template for sheets
+            const [existingTemplates] = await connection.query(
+                'SELECT id FROM workflow_templates WHERE entity_type = "sheet" AND is_active = TRUE LIMIT 1'
+            );
+            
+            if (existingTemplates.length === 0) {
+                await connection.query(`
+                    INSERT INTO workflow_templates (entity_type, name, description, steps)
+                    VALUES (
+                        'sheet',
+                        'Default Sheet Approval',
+                        'Standard daily sheet approval workflow',
+                        '[{"step": 1, "role": "site_manager", "label": "Site Manager Approval"}, {"step": 2, "role": "accountant", "label": "Accountant Approval"}, {"step": 3, "role": "admin", "label": "Final Approval"}]'
+                    )
+                `);
+                console.log('✅ Default sheet workflow template created');
+            }
+        } catch (err) {
+            console.log('⚠️  Could not create workflow_templates:', err.message);
+        }
+        
+        // Fix 11: Fix signature_requests status column
+        console.log('\n📋 Fixing signature_requests status column...');
+        try {
+            await connection.query(
+                "ALTER TABLE signature_requests MODIFY COLUMN status VARCHAR(50) DEFAULT 'pending'"
+            );
+            console.log('   ✅ signature_requests status updated to VARCHAR(50)');
+        } catch (err) {
+            console.log('   ⚠️  Could not update signature_requests status');
+        }
+        
+        // Fix 12: Fix daily_sheets status column
+        console.log('\n📋 Fixing daily_sheets status column...');
+        try {
+            await connection.query(
+                "ALTER TABLE daily_sheets MODIFY COLUMN status VARCHAR(50) DEFAULT 'draft'"
+            );
+            console.log('   ✅ daily_sheets status updated to VARCHAR(50)');
+        } catch (err) {
+            console.log('   ⚠️  Could not update daily_sheets status');
+        }
+        
         // Fix 9: Add missing columns to expenses table (beyond expense_date)
         console.log('\n📋 Checking expenses table for additional columns...');
         const [expenseCols] = await connection.query("SHOW COLUMNS FROM expenses");
