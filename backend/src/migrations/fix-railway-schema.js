@@ -294,8 +294,8 @@ async function fixRailwaySchema() {
         if (!updatedProjectColumnNames.includes('project_code')) missingProjectColumns.push('project_code VARCHAR(20) UNIQUE AFTER id');
         if (!updatedProjectColumnNames.includes('client_id')) missingProjectColumns.push('client_id INT AFTER project_name');
         if (!updatedProjectColumnNames.includes('location')) missingProjectColumns.push('location TEXT AFTER client_id');
-        if (!updatedProjectColumnNames.includes('estimated_budget')) missingProjectColumns.push('estimated_budget DECIMAL(15, 2) DEFAULT 0.00 AFTER location');
-        if (!updatedProjectColumnNames.includes('actual_cost')) missingProjectColumns.push('actual_cost DECIMAL(15, 2) DEFAULT 0.00 AFTER estimated_budget');
+        if (!updatedProjectColumnNames.includes('estimated_budget')) missingProjectColumns.push('estimated_budget DECIMAL(20, 2) DEFAULT 0.00 AFTER location');
+        if (!updatedProjectColumnNames.includes('actual_cost')) missingProjectColumns.push('actual_cost DECIMAL(20, 2) DEFAULT 0.00 AFTER estimated_budget');
         if (!updatedProjectColumnNames.includes('start_date')) missingProjectColumns.push('start_date DATE AFTER actual_cost');
         if (!updatedProjectColumnNames.includes('end_date')) missingProjectColumns.push('end_date DATE AFTER start_date');
         if (!updatedProjectColumnNames.includes('description')) missingProjectColumns.push('description TEXT AFTER end_date');
@@ -328,6 +328,26 @@ async function fixRailwaySchema() {
             console.log('✅ Missing project columns added successfully');
         } else {
             console.log('✅ All required columns exist in projects table');
+        }
+        
+        // Fix budget columns size - ensure they can handle large values
+        console.log('\n📋 Ensuring budget columns can handle large values...');
+        try {
+            await connection.query(
+                "ALTER TABLE projects MODIFY COLUMN estimated_budget DECIMAL(20, 2) DEFAULT 0.00"
+            );
+            console.log('   ✅ estimated_budget updated to DECIMAL(20, 2)');
+        } catch (err) {
+            console.log('   ⚠️  Could not update estimated_budget');
+        }
+        
+        try {
+            await connection.query(
+                "ALTER TABLE projects MODIFY COLUMN actual_cost DECIMAL(20, 2) DEFAULT 0.00"
+            );
+            console.log('   ✅ actual_cost updated to DECIMAL(20, 2)');
+        } catch (err) {
+            console.log('   ⚠️  Could not update actual_cost');
         }
         
         // Fix 9: Add missing columns to expenses table (beyond expense_date)
