@@ -16,8 +16,13 @@ console.log('  DB_NAME:', process.env.DB_NAME);
 console.log('  NODE_ENV:', process.env.NODE_ENV);
 
 // Railway uses both internal and external variables
-// Priority: DB_* variables (external) > MYSQL* variables (internal)
-const dbHost = process.env.DB_HOST || process.env.MYSQLHOST || 'localhost';
+// Try multiple possible variable names for host
+const dbHost = process.env.DB_HOST || 
+               process.env.MYSQL_HOST ||  // Alternative name
+               process.env.DATABASE_HOST || // Another alternative
+               process.env.MYSQLHOST || 
+               (process.env.NODE_ENV === 'production' ? 'roundhouse.proxy.rlwy.net' : 'localhost');
+               
 const dbPort = parseInt(process.env.DB_PORT || process.env.MYSQLPORT || '3306');
 const dbUser = process.env.DB_USER || process.env.MYSQLUSER || 'root';
 const dbPassword = process.env.DB_PASSWORD || process.env.MYSQLPASSWORD || '';
