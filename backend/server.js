@@ -205,7 +205,7 @@ app.use((err, req, res, next) => {
 // START SERVER
 // ============================================
 
-const server = app.listen(PORT, async () => {
+const server = app.listen(PORT, '0.0.0.0', async () => {
     console.log('\n========================================');
     console.log('🏗️  Smart Construction Management System');
     console.log('========================================');
