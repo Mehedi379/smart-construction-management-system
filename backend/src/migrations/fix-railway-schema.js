@@ -225,6 +225,8 @@ async function fixRailwaySchema() {
         if (!employeeColumnNames.includes('department')) missingEmployeeColumns.push('department VARCHAR(50) AFTER category');
         if (!employeeColumnNames.includes('work_role')) missingEmployeeColumns.push('work_role VARCHAR(50) AFTER department');
         if (!employeeColumnNames.includes('assigned_project_id')) missingEmployeeColumns.push('assigned_project_id INT AFTER work_role');
+        if (!employeeColumnNames.includes('created_by')) missingEmployeeColumns.push('created_by INT AFTER status');
+        if (!employeeColumnNames.includes('updated_by')) missingEmployeeColumns.push('updated_by INT AFTER created_by');
         
         if (missingEmployeeColumns.length > 0) {
             console.log(`⚠️  Adding ${missingEmployeeColumns.length} missing column(s) to employees table...`);
