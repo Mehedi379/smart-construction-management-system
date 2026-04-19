@@ -264,17 +264,41 @@ async function fixRailwaySchema() {
         console.log('\n📋 Checking projects table...');
         const [projectColumns] = await connection.query("SHOW COLUMNS FROM projects");
         const projectColumnNames = projectColumns.map(col => col.Field);
+        
+        // Rename project_id to project_code if project_id exists but project_code doesn't
+        if (projectColumnNames.includes('project_id') && !projectColumnNames.includes('project_code')) {
+            console.log('   - Renaming project_id to project_code...');
+            try {
+                await connection.query(
+                    "ALTER TABLE projects CHANGE COLUMN project_id project_code VARCHAR(20) UNIQUE NOT NULL"
+                );
+                console.log('   ✅ Renamed project_id to project_code');
+            } catch (err) {
+                console.log('   ⚠️  Failed to rename, will add project_code separately');
+                // If rename fails, make project_id nullable and add project_code
+                try {
+                    await connection.query(
+                        "ALTER TABLE projects MODIFY COLUMN project_id VARCHAR(20) NULL"
+                    );
+                } catch (err2) {}
+            }
+        }
+        
         const missingProjectColumns = [];
         
-        if (!projectColumnNames.includes('project_code')) missingProjectColumns.push('project_code VARCHAR(20) UNIQUE AFTER id');
-        if (!projectColumnNames.includes('client_id')) missingProjectColumns.push('client_id INT AFTER project_name');
-        if (!projectColumnNames.includes('location')) missingProjectColumns.push('location TEXT AFTER client_id');
-        if (!projectColumnNames.includes('estimated_budget')) missingProjectColumns.push('estimated_budget DECIMAL(15, 2) DEFAULT 0.00 AFTER location');
-        if (!projectColumnNames.includes('actual_cost')) missingProjectColumns.push('actual_cost DECIMAL(15, 2) DEFAULT 0.00 AFTER estimated_budget');
-        if (!projectColumnNames.includes('start_date')) missingProjectColumns.push('start_date DATE AFTER actual_cost');
-        if (!projectColumnNames.includes('end_date')) missingProjectColumns.push('end_date DATE AFTER start_date');
-        if (!projectColumnNames.includes('description')) missingProjectColumns.push('description TEXT AFTER end_date');
-        if (!projectColumnNames.includes('created_by')) missingProjectColumns.push('created_by INT AFTER description');
+        // Re-check columns after potential rename
+        const [updatedProjectColumns] = await connection.query("SHOW COLUMNS FROM projects");
+        const updatedProjectColumnNames = updatedProjectColumns.map(col => col.Field);
+        
+        if (!updatedProjectColumnNames.includes('project_code')) missingProjectColumns.push('project_code VARCHAR(20) UNIQUE AFTER id');
+        if (!updatedProjectColumnNames.includes('client_id')) missingProjectColumns.push('client_id INT AFTER project_name');
+        if (!updatedProjectColumnNames.includes('location')) missingProjectColumns.push('location TEXT AFTER client_id');
+        if (!updatedProjectColumnNames.includes('estimated_budget')) missingProjectColumns.push('estimated_budget DECIMAL(15, 2) DEFAULT 0.00 AFTER location');
+        if (!updatedProjectColumnNames.includes('actual_cost')) missingProjectColumns.push('actual_cost DECIMAL(15, 2) DEFAULT 0.00 AFTER estimated_budget');
+        if (!updatedProjectColumnNames.includes('start_date')) missingProjectColumns.push('start_date DATE AFTER actual_cost');
+        if (!updatedProjectColumnNames.includes('end_date')) missingProjectColumns.push('end_date DATE AFTER start_date');
+        if (!updatedProjectColumnNames.includes('description')) missingProjectColumns.push('description TEXT AFTER end_date');
+        if (!updatedProjectColumnNames.includes('created_by')) missingProjectColumns.push('created_by INT AFTER description');
         
         if (missingProjectColumns.length > 0) {
             console.log(`⚠️  Adding ${missingProjectColumns.length} missing column(s) to projects table...`);
