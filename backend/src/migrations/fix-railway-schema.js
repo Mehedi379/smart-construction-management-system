@@ -11,7 +11,7 @@ async function fixRailwaySchema() {
         console.log('\n🔧 Checking database schema compatibility...');
         
         // Create connection pool
-        const pool = require('../src/config/database');
+        const pool = require('../../config/database');
         connection = await pool.getConnection();
         
         // Check and fix expenses table
