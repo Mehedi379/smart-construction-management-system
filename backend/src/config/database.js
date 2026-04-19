@@ -1,5 +1,8 @@
 const mysql = require('mysql2/promise');
-require('dotenv').config();
+
+// Force reload dotenv for Railway
+const dotenv = require('dotenv');
+dotenv.config({ override: true });
 
 // Log ALL environment variables related to database
 console.log('🔧 Environment Variables Check:');
@@ -8,19 +11,13 @@ console.log('  MYSQLHOST:', process.env.MYSQLHOST);
 console.log('  DB_PORT:', process.env.DB_PORT);
 console.log('  MYSQLPORT:', process.env.MYSQLPORT);
 console.log('  DB_USER:', process.env.DB_USER);
+console.log('  DB_PASSWORD:', process.env.DB_PASSWORD ? 'Set (length: ' + process.env.DB_PASSWORD.length + ')' : 'undefined');
 console.log('  DB_NAME:', process.env.DB_NAME);
 console.log('  NODE_ENV:', process.env.NODE_ENV);
 
-// Determine the correct host
-// Railway fallback: if DB_HOST is undefined, use the known Railway MySQL host
-let dbHost = process.env.DB_HOST || process.env.MYSQLHOST;
-if (!dbHost && process.env.NODE_ENV === 'production') {
-    // Fallback for Railway deployment
-    dbHost = 'roundhouse.proxy.rlwy.net';
-    console.log('⚠️  DB_HOST not found, using Railway default');
-}
-dbHost = dbHost || 'localhost';
-
+// Railway uses both internal and external variables
+// Priority: DB_* variables (external) > MYSQL* variables (internal)
+const dbHost = process.env.DB_HOST || process.env.MYSQLHOST || 'localhost';
 const dbPort = parseInt(process.env.DB_PORT || process.env.MYSQLPORT || '3306');
 const dbUser = process.env.DB_USER || process.env.MYSQLUSER || 'root';
 const dbPassword = process.env.DB_PASSWORD || process.env.MYSQLPASSWORD || '';
@@ -30,6 +27,7 @@ console.log('\n🔧 Final Database Configuration:');
 console.log('  Host:', dbHost);
 console.log('  Port:', dbPort);
 console.log('  User:', dbUser);
+console.log('  Password:', dbPassword ? 'Set (length: ' + dbPassword.length + ')' : 'EMPTY');
 console.log('  Database:', dbName);
 
 const pool = mysql.createPool({
