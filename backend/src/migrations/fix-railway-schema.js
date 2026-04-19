@@ -215,6 +215,51 @@ async function fixRailwaySchema() {
             console.log('✅ transactions table already exists');
         }
         
+        // Fix 7: Add missing columns to employees table
+        console.log('\n📋 Checking employees table...');
+        const [employeeColumns] = await connection.query("SHOW COLUMNS FROM employees");
+        const employeeColumnNames = employeeColumns.map(col => col.Field);
+        const missingEmployeeColumns = [];
+        
+        if (!employeeColumnNames.includes('category')) missingEmployeeColumns.push('category VARCHAR(50) AFTER designation');
+        if (!employeeColumnNames.includes('department')) missingEmployeeColumns.push('department VARCHAR(50) AFTER category');
+        if (!employeeColumnNames.includes('work_role')) missingEmployeeColumns.push('work_role VARCHAR(50) AFTER department');
+        if (!employeeColumnNames.includes('assigned_project_id')) missingEmployeeColumns.push('assigned_project_id INT AFTER work_role');
+        
+        if (missingEmployeeColumns.length > 0) {
+            console.log(`⚠️  Adding ${missingEmployeeColumns.length} missing column(s) to employees table...`);
+            
+            for (const columnDef of missingEmployeeColumns) {
+                const columnName = columnDef.split(' ')[0];
+                console.log(`   - Adding ${columnName}...`);
+                await connection.query(
+                    `ALTER TABLE employees ADD COLUMN ${columnDef}`
+                );
+            }
+            
+            // Add foreign key for assigned_project_id
+            try {
+                await connection.query(
+                    "ALTER TABLE employees ADD CONSTRAINT fk_employee_project FOREIGN KEY (assigned_project_id) REFERENCES projects(id) ON DELETE SET NULL"
+                );
+            } catch (err) {
+                // Foreign key might already exist
+            }
+            
+            // Add indexes
+            try {
+                await connection.query("ALTER TABLE employees ADD INDEX idx_category (category)");
+                await connection.query("ALTER TABLE employees ADD INDEX idx_department (department)");
+                await connection.query("ALTER TABLE employees ADD INDEX idx_assigned_project (assigned_project_id)");
+            } catch (err) {
+                // Indexes might already exist
+            }
+            
+            console.log('✅ Missing employee columns added successfully');
+        } else {
+            console.log('✅ All required columns exist in employees table');
+        }
+        
         console.log('\n✅ Database schema migration completed successfully!\n');
         
         connection.release();
