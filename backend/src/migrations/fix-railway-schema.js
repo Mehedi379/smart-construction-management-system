@@ -260,6 +260,25 @@ async function fixRailwaySchema() {
             console.log('✅ All required columns exist in employees table');
         }
         
+        // Fix 7.5: Add missing columns to users table
+        console.log('\n📋 Checking users table...');
+        const [userColumns] = await connection.query("SHOW COLUMNS FROM users");
+        const userColumnNames = userColumns.map(col => col.Field);
+        
+        if (!userColumnNames.includes('status')) {
+            console.log('   - Adding status column to users table...');
+            try {
+                await connection.query(
+                    "ALTER TABLE users ADD COLUMN status ENUM('active', 'inactive', 'suspended') DEFAULT 'inactive' AFTER is_approved"
+                );
+                console.log('   ✅ status column added to users table');
+            } catch (err) {
+                console.log('   ⚠️  Could not add status column:', err.message);
+            }
+        } else {
+            console.log('✅ status column exists in users table');
+        }
+        
         // Fix 8: Fix projects table - ensure project_code exists and project_id doesn't block inserts
         console.log('\n📋 Checking projects table...');
         const [projectColumns] = await connection.query("SHOW COLUMNS FROM projects");
