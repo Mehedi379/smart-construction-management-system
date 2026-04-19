@@ -331,7 +331,64 @@ async function fixRailwaySchema() {
         
         console.log('\n✅ Database schema migration completed successfully!\n');
         
-        // Fix 10: Create missing daily sheet and signature tables
+        // Fix 10: Fix daily_sheets table columns
+        console.log('\n📋 Checking daily_sheets table columns...');
+        const [dailySheetColumns] = await connection.query("SHOW COLUMNS FROM daily_sheets");
+        const dailySheetColumnNames = dailySheetColumns.map(col => col.Field);
+        const missingDailySheetColumns = [];
+        
+        // Check for correct column names used by the model
+        if (!dailySheetColumnNames.includes('sheet_no')) {
+            // Check if sheet_id exists (old name)
+            if (dailySheetColumnNames.includes('sheet_id')) {
+                console.log('   - Renaming sheet_id to sheet_no...');
+                await connection.query(
+                    "ALTER TABLE daily_sheets CHANGE COLUMN sheet_id sheet_no VARCHAR(30) UNIQUE NOT NULL"
+                );
+            } else {
+                missingDailySheetColumns.push('sheet_no VARCHAR(30) UNIQUE AFTER id');
+            }
+        }
+        
+        if (!dailySheetColumnNames.includes('sheet_date')) {
+            // Check if date exists (old name)
+            if (dailySheetColumnNames.includes('date')) {
+                console.log('   - Renaming date to sheet_date...');
+                await connection.query(
+                    "ALTER TABLE daily_sheets CHANGE COLUMN date sheet_date DATE NOT NULL"
+                );
+            } else {
+                missingDailySheetColumns.push('sheet_date DATE AFTER sheet_no');
+            }
+        }
+        
+        if (!dailySheetColumnNames.includes('location')) missingDailySheetColumns.push('location VARCHAR(255) AFTER sheet_date');
+        if (!dailySheetColumnNames.includes('previous_balance')) missingDailySheetColumns.push('previous_balance DECIMAL(15, 2) DEFAULT 0 AFTER location');
+        if (!dailySheetColumnNames.includes('today_expense')) missingDailySheetColumns.push('today_expense DECIMAL(15, 2) DEFAULT 0 AFTER previous_balance');
+        if (!dailySheetColumnNames.includes('remaining_balance')) missingDailySheetColumns.push('remaining_balance DECIMAL(15, 2) DEFAULT 0 AFTER today_expense');
+        if (!dailySheetColumnNames.includes('receipt_image')) missingDailySheetColumns.push('receipt_image VARCHAR(255) AFTER remaining_balance');
+        if (!dailySheetColumnNames.includes('ocr_text')) missingDailySheetColumns.push('ocr_text TEXT AFTER receipt_image');
+        if (!dailySheetColumnNames.includes('is_locked')) missingDailySheetColumns.push('is_locked BOOLEAN DEFAULT FALSE AFTER status');
+        if (!dailySheetColumnNames.includes('rejection_reason')) missingDailySheetColumns.push('rejection_reason TEXT AFTER rejected_by');
+        if (!dailySheetColumnNames.includes('rejected_at')) missingDailySheetColumns.push('rejected_at TIMESTAMP NULL AFTER rejection_reason');
+        
+        if (missingDailySheetColumns.length > 0) {
+            console.log(`⚠️  Adding ${missingDailySheetColumns.length} missing column(s) to daily_sheets table...`);
+            
+            for (const columnDef of missingDailySheetColumns) {
+                const columnName = columnDef.split(' ')[0];
+                console.log(`   - Adding ${columnName}...`);
+                await connection.query(
+                    `ALTER TABLE daily_sheets ADD COLUMN ${columnDef}`
+                );
+            }
+            
+            console.log('✅ Missing daily_sheets columns added successfully');
+        } else if (dailySheetColumnNames.includes('sheet_no') && dailySheetColumnNames.includes('sheet_date')) {
+            console.log('✅ All required columns exist in daily_sheets table');
+        }
+        
+        // Fix 11: Create missing daily sheet and signature tables
         console.log('\n📋 Checking daily sheet related tables...');
         
         // Check signature_requests table
