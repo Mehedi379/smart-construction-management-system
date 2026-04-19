@@ -193,10 +193,13 @@ exports.login = async (req, res) => {
 
     } catch (error) {
         console.error('Login error:', error);
+        console.error('Error details:', error.message);
+        console.error('Error code:', error.code);
         res.status(500).json({
             success: false,
             message: 'Login failed',
-            error: process.env.NODE_ENV === 'development' ? error.message : undefined
+            error: process.env.NODE_ENV === 'development' ? error.message : undefined,
+            errorCode: error.code || 'UNKNOWN'
         });
     }
 };

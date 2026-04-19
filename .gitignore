@@ -36,8 +36,17 @@ lerna-debug.log*
 
 # Environment Variables
 .env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
 backend/.env
 frontend/.env
+backend/.env.production.template
+
+# Database credentials
+*.credentials
+*password*
 
 # Uploads
 backend/uploads/*
