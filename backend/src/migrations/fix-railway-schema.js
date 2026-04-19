@@ -260,42 +260,34 @@ async function fixRailwaySchema() {
             console.log('✅ All required columns exist in employees table');
         }
         
-        // Fix 8: Add missing columns to projects table
+        // Fix 8: Fix projects table - ensure project_code exists and project_id doesn't block inserts
         console.log('\n📋 Checking projects table...');
         const [projectColumns] = await connection.query("SHOW COLUMNS FROM projects");
         const projectColumnNames = projectColumns.map(col => col.Field);
         
-        // Rename project_id to project_code if project_id exists but project_code doesn't
-        if (projectColumnNames.includes('project_id') && !projectColumnNames.includes('project_code')) {
-            console.log('   - Attempting to rename project_id to project_code...');
+        // Drop project_id column if it exists (we'll use project_code instead)
+        if (projectColumnNames.includes('project_id')) {
+            console.log('   - Removing old project_id column...');
             try {
-                // First, drop the unique index on project_id
                 await connection.query(
-                    "ALTER TABLE projects DROP INDEX idx_project_id"
-                ).catch(() => {});
-                
-                // Then rename the column
-                await connection.query(
-                    "ALTER TABLE projects CHANGE COLUMN project_id project_code VARCHAR(20) UNIQUE NOT NULL"
+                    "ALTER TABLE projects DROP COLUMN project_id"
                 );
-                console.log('   ✅ Successfully renamed project_id to project_code');
+                console.log('   ✅ Dropped project_id column');
             } catch (err) {
-                console.log('   ⚠️  Rename failed, making project_id nullable and adding project_code...');
-                // If rename fails, make project_id nullable
+                console.log('   ⚠️  Cannot drop project_id:', err.message);
+                // Fallback: just make it nullable
                 try {
                     await connection.query(
                         "ALTER TABLE projects MODIFY COLUMN project_id VARCHAR(20) NULL DEFAULT NULL"
                     );
-                    console.log('   ✅ Made project_id nullable');
-                } catch (err2) {
-                    console.log('   ⚠️  Could not modify project_id:', err2.message);
-                }
+                    console.log('   ✅ Made project_id nullable as fallback');
+                } catch (err2) {}
             }
         }
         
         const missingProjectColumns = [];
         
-        // Re-check columns after potential rename
+        // Re-check columns
         const [updatedProjectColumns] = await connection.query("SHOW COLUMNS FROM projects");
         const updatedProjectColumnNames = updatedProjectColumns.map(col => col.Field);
         
