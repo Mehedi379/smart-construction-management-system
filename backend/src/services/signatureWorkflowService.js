@@ -458,7 +458,8 @@ class SignatureWorkflowService {
                 ds.sheet_date,
                 ds.project_id,
                 p.project_name,
-                ds.total_amount,
+                ds.today_expense as total_amount,
+                ds.status as sheet_status,
                 sr.role_code as required_role_code,
                 sr.role_name as required_role,
                 sr.status as request_status,
@@ -468,7 +469,7 @@ class SignatureWorkflowService {
             INNER JOIN daily_sheets ds ON sr.sheet_id = ds.id
             INNER JOIN projects p ON ds.project_id = p.id
             WHERE sr.role_code = ?
-            AND sr.status = 'requested'
+            AND sr.status = 'pending'
             ORDER BY sr.requested_at DESC`,
             [userRoleCode]
         );
