@@ -218,32 +218,15 @@ const server = app.listen(PORT, async () => {
     
     // Auto-setup database tables on first run
     try {
+        console.log('🔧 Setting up database...');
         const setupDb = require('./setup-database');
         await setupDb();
+        console.log('✅ Database setup complete');
     } catch (err) {
-        console.log('ℹ️  Database already setup or error:', err.message);
+        console.log('ℹ️  Database tables already exist:', err.message);
     }
     
-    console.log('\n✅ Server is ready to accept requests!\n');
-    
-    // Run automatic ID verification on startup (DISABLED IN PRODUCTION)
-    if (process.env.NODE_ENV === 'development' && process.env.AUTO_VERIFY === 'true') {
-        try {
-            const AutoIDVerificationService = require('./src/services/autoIDVerificationService');
-            AutoIDVerificationService.runCompleteVerification()
-                .then(results => {
-                    console.log('🔍 Auto ID Verification Results:');
-                    console.log(`   ✓ Checks: ${results.checks.length}`);
-                    console.log(`   ✓ Fixes: ${results.fixes.length}`);
-                    console.log(`   ✗ Errors: ${results.errors.length}\n`);
-                })
-                .catch(err => {
-                    console.error('❌ Auto ID Verification failed:', err.message);
-                });
-        } catch (err) {
-            console.log('ℹ️  Auto ID Verification service not available');
-        }
-    }
+    console.log('\n✅✅✅ Server is READY to accept requests! ✅✅✅\n');
 });
 
 // Graceful shutdown
