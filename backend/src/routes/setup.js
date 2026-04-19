@@ -288,4 +288,90 @@ router.post('/fix-schema', async (req, res) => {
     }
 });
 
+// Add Missing Tables
+router.post('/add-tables', async (req, res) => {
+    try {
+        console.log('🔧 Adding missing tables...');
+        
+        const pool = require('../config/database');
+        
+        const tablesToCreate = [
+            {
+                name: 'clients',
+                sql: `CREATE TABLE IF NOT EXISTS clients (
+                    id INT AUTO_INCREMENT PRIMARY KEY,
+                    name VARCHAR(150) NOT NULL,
+                    phone VARCHAR(20),
+                    email VARCHAR(100),
+                    address TEXT,
+                    company VARCHAR(150),
+                    status ENUM('active', 'inactive') DEFAULT 'active',
+                    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+                    INDEX idx_status (status)
+                )`
+            },
+            {
+                name: 'suppliers',
+                sql: `CREATE TABLE IF NOT EXISTS suppliers (
+                    id INT AUTO_INCREMENT PRIMARY KEY,
+                    name VARCHAR(150) NOT NULL,
+                    phone VARCHAR(20),
+                    email VARCHAR(100),
+                    address TEXT,
+                    company VARCHAR(150),
+                    status ENUM('active', 'inactive') DEFAULT 'active',
+                    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+                    INDEX idx_status (status)
+                )`
+            },
+            {
+                name: 'notifications',
+                sql: `CREATE TABLE IF NOT EXISTS notifications (
+                    id INT AUTO_INCREMENT PRIMARY KEY,
+                    user_id INT NOT NULL,
+                    title VARCHAR(200) NOT NULL,
+                    message TEXT,
+                    type VARCHAR(50) DEFAULT 'info',
+                    is_read BOOLEAN DEFAULT FALSE,
+                    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                    INDEX idx_user_id (user_id),
+                    INDEX idx_is_read (is_read)
+                )`
+            }
+        ];
+        
+        const results = [];
+        
+        for (const table of tablesToCreate) {
+            try {
+                await pool.query(table.sql);
+                results.push({ table: table.name, status: 'created' });
+                console.log(`✅ Created table: ${table.name}`);
+            } catch (error) {
+                if (error.code === 'ER_TABLE_EXISTS_ERROR') {
+                    results.push({ table: table.name, status: 'already exists' });
+                } else {
+                    results.push({ table: table.name, status: 'error', message: error.message });
+                }
+            }
+        }
+        
+        res.json({
+            success: true,
+            message: 'Missing tables added!',
+            tables: results
+        });
+        
+    } catch (error) {
+        console.error('❌ Add tables error:', error);
+        res.status(500).json({
+            success: false,
+            message: 'Failed to add tables',
+            error: error.message
+        });
+    }
+});
+
 module.exports = router;
