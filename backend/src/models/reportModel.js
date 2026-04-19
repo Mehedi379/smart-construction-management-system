@@ -139,95 +139,96 @@ exports.getMonthlyReport = async (year, month) => {
 exports.getDashboardStats = async (user = null, projectFilter = null) => {
     console.log('=== GET DASHBOARD STATS ===');
     
-    // Determine project filter for ID-wise access
-    let projectIdFilter = null;
-    
-    // Non-admin users: filter by their assigned project
-    if (projectFilter && !projectFilter.isAdmin && projectFilter.projectId) {
-        projectIdFilter = projectFilter.projectId;
-        console.log('ID-WISE FILTER: Project ID =', projectIdFilter);
-    }
-    
-    // Today's expenses
-    const today = new Date().toISOString().split('T')[0];
-    console.log('Today:', today);
-    
-    let todayExpensesQuery = `
-        SELECT COALESCE(SUM(amount), 0) as total
-        FROM expenses
-        WHERE expense_date = ?
-    `;
-    let todayExpensesParams = [today];
-    
-    if (projectIdFilter) {
-        todayExpensesQuery += ' AND project_id = ?';
-        todayExpensesParams.push(projectIdFilter);
-    }
-    
-    const [todayExpenses] = await pool.query(todayExpensesQuery, todayExpensesParams);
-    console.log('Today expenses:', todayExpenses[0].total);
+    try {
+        // Determine project filter for ID-wise access
+        let projectIdFilter = null;
+        
+        // Non-admin users: filter by their assigned project
+        if (projectFilter && !projectFilter.isAdmin && projectFilter.projectId) {
+            projectIdFilter = projectFilter.projectId;
+            console.log('ID-WISE FILTER: Project ID =', projectIdFilter);
+        }
+        
+        // Today's expenses
+        const today = new Date().toISOString().split('T')[0];
+        console.log('Today:', today);
+        
+        let todayExpensesQuery = `
+            SELECT COALESCE(SUM(amount), 0) as total
+            FROM expenses
+            WHERE expense_date = ?
+        `;
+        let todayExpensesParams = [today];
+        
+        if (projectIdFilter) {
+            todayExpensesQuery += ' AND project_id = ?';
+            todayExpensesParams.push(projectIdFilter);
+        }
+        
+        const [todayExpenses] = await pool.query(todayExpensesQuery, todayExpensesParams);
+        console.log('Today expenses:', todayExpenses[0].total);
 
-    // Total income (approved receipts) - ID-wise
-    let incomeQuery = `
-        SELECT COALESCE(SUM(amount), 0) as total
-        FROM vouchers
-        WHERE voucher_type = 'receipt' AND status = 'approved'
-    `;
-    let incomeParams = [];
-    
-    if (projectIdFilter) {
-        incomeQuery += ' AND project_id = ?';
-        incomeParams.push(projectIdFilter);
-    }
-    
-    const [monthlyIncome] = await pool.query(incomeQuery, incomeParams);
-    console.log('Total income:', monthlyIncome[0].total);
+        // Total income (approved receipts) - ID-wise
+        let incomeQuery = `
+            SELECT COALESCE(SUM(amount), 0) as total
+            FROM vouchers
+            WHERE voucher_type = 'receipt' AND status = 'approved'
+        `;
+        let incomeParams = [];
+        
+        if (projectIdFilter) {
+            incomeQuery += ' AND project_id = ?';
+            incomeParams.push(projectIdFilter);
+        }
+        
+        const [monthlyIncome] = await pool.query(incomeQuery, incomeParams);
+        console.log('Total income:', monthlyIncome[0].total);
 
-    // Total expenses - ID-wise
-    let expensesQuery = `
-        SELECT COALESCE(SUM(amount), 0) as total
-        FROM expenses
-    `;
-    let expensesParams = [];
-    
-    if (projectIdFilter) {
-        expensesQuery += ' WHERE project_id = ?';
-        expensesParams.push(projectIdFilter);
-    }
-    
-    const [monthlyExpenses] = await pool.query(expensesQuery, expensesParams);
-    console.log('Total expenses:', monthlyExpenses[0].total);
+        // Total expenses - ID-wise
+        let expensesQuery = `
+            SELECT COALESCE(SUM(amount), 0) as total
+            FROM expenses
+        `;
+        let expensesParams = [];
+        
+        if (projectIdFilter) {
+            expensesQuery += ' WHERE project_id = ?';
+            expensesParams.push(projectIdFilter);
+        }
+        
+        const [monthlyExpenses] = await pool.query(expensesQuery, expensesParams);
+        console.log('Total expenses:', monthlyExpenses[0].total);
 
-    // Pending vouchers - ID-wise
-    let pendingVouchersQuery = `
-        SELECT COUNT(*) as count
-        FROM vouchers
-        WHERE status = 'pending'
-    `;
-    let pendingVouchersParams = [];
-    
-    if (projectIdFilter) {
-        pendingVouchersQuery += ' AND project_id = ?';
-        pendingVouchersParams.push(projectIdFilter);
-    }
-    
-    const [pendingVouchers] = await pool.query(pendingVouchersQuery, pendingVouchersParams);
-    console.log('Pending vouchers:', pendingVouchers[0].count);
+        // Pending vouchers - ID-wise
+        let pendingVouchersQuery = `
+            SELECT COUNT(*) as count
+            FROM vouchers
+            WHERE status = 'pending'
+        `;
+        let pendingVouchersParams = [];
+        
+        if (projectIdFilter) {
+            pendingVouchersQuery += ' AND project_id = ?';
+            pendingVouchersParams.push(projectIdFilter);
+        }
+        
+        const [pendingVouchers] = await pool.query(pendingVouchersQuery, pendingVouchersParams);
+        console.log('Pending vouchers:', pendingVouchers[0].count);
 
-    // Total projects - ID-wise
-    let projectsQuery = `
-        SELECT COUNT(*) as count
-        FROM projects
-    `;
-    let projectsParams = [];
-    
-    if (projectIdFilter) {
-        projectsQuery += ' WHERE id = ?';
-        projectsParams.push(projectIdFilter);
-    }
-    
-    const [totalProjects] = await pool.query(projectsQuery, projectsParams);
-    console.log('Total projects:', totalProjects[0].count);
+        // Total projects - ID-wise
+        let projectsQuery = `
+            SELECT COUNT(*) as count
+            FROM projects
+        `;
+        let projectsParams = [];
+        
+        if (projectIdFilter) {
+            projectsQuery += ' WHERE id = ?';
+            projectsParams.push(projectIdFilter);
+        }
+        
+        const [totalProjects] = await pool.query(projectsQuery, projectsParams);
+        console.log('Total projects:', totalProjects[0].count);
 
     // Total employees - ID-wise
     let employeesQuery = `
@@ -547,4 +548,33 @@ exports.getDashboardStats = async (user = null, projectFilter = null) => {
         my_vouchers: myVouchers,
         my_pending: myPending
     };
+    
+    } catch (error) {
+        console.error('❌ getDashboardStats error:', error.message);
+        console.error('❌ Error stack:', error.stack);
+        // Return default stats instead of crashing
+        return {
+            today_expenses: 0,
+            monthly_income: 0,
+            monthly_expenses: 0,
+            monthly_profit: 0,
+            pending_vouchers: 0,
+            total_projects: 0,
+            total_employees: 0,
+            role_breakdown: [],
+            category_breakdown: [],
+            recent_transactions: [],
+            project_breakdown: [],
+            all_projects_budget: 0,
+            all_projects_expense: 0,
+            all_projects_income: 0,
+            all_projects_employees: 0,
+            expense_by_category: [],
+            sheets_trend: [],
+            top_expenses: [],
+            voucher_by_type: [],
+            my_vouchers: 0,
+            my_pending: 0
+        };
+    }
 };
