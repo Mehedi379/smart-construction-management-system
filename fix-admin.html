@@ -149,13 +149,17 @@
         <h1>🔧 Fix Admin User</h1>
         <p class="subtitle">Smart Construction Management System - Railway Database</p>
         
+        <button class="btn" id="fixSchemaBtn" onclick="fixSchema()" style="margin-bottom: 10px; background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);">
+            🔧 Step 1: Fix Database Schema
+        </button>
+        
         <button class="btn" id="fixBtn" onclick="fixAdmin()">
-            🔐 Fix Admin User Now
+            🔐 Step 2: Fix Admin User
         </button>
         
         <div class="loading" id="loading">
             <div class="spinner"></div>
-            <p>Fixing admin user...</p>
+            <p id="loadingText">Fixing...</p>
         </div>
         
         <div class="result" id="result"></div>
@@ -170,6 +174,55 @@
     <script>
         const API_URL = 'https://smart-construction-management-system-production.up.railway.app/api';
         
+        async function fixSchema() {
+            const btn = document.getElementById('fixSchemaBtn');
+            const loading = document.getElementById('loading');
+            const loadingText = document.getElementById('loadingText');
+            const result = document.getElementById('result');
+            
+            result.className = 'result';
+            result.style.display = 'none';
+            
+            btn.disabled = true;
+            loading.classList.add('show');
+            loadingText.textContent = 'Fixing database schema...';
+            
+            try {
+                const response = await fetch(`${API_URL}/setup/fix-schema`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    result.className = 'result success';
+                    result.innerHTML = `
+                        <h3>✅ Schema Fixed!</h3>
+                        <p>${data.message}</p>
+                        <pre>${JSON.stringify(data.columns, null, 2)}</pre>
+                    `;
+                } else {
+                    result.className = 'result error';
+                    result.innerHTML = `
+                        <h3>❌ Error</h3>
+                        <p>${data.message}</p>
+                    `;
+                }
+            } catch (error) {
+                result.className = 'result error';
+                result.innerHTML = `
+                    <h3>❌ Request Failed</h3>
+                    <p>${error.message}</p>
+                `;
+            } finally {
+                btn.disabled = false;
+                loading.classList.remove('show');
+            }
+        }
+        
         async function fixAdmin() {
             const btn = document.getElementById('fixBtn');
             const loading = document.getElementById('loading');
@@ -182,6 +235,7 @@
             // Show loading
             btn.disabled = true;
             loading.classList.add('show');
+            loadingText.textContent = 'Fixing admin user...';
             
             try {
                 const response = await fetch(`${API_URL}/setup/fix-admin`, {
