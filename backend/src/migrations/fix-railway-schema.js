@@ -264,19 +264,26 @@ async function fixRailwaySchema() {
         console.log('\n📋 Checking users table...');
         const [userColumns] = await connection.query("SHOW COLUMNS FROM users");
         const userColumnNames = userColumns.map(col => col.Field);
+        const missingUserColumns = [];
         
-        if (!userColumnNames.includes('status')) {
-            console.log('   - Adding status column to users table...');
-            try {
+        if (!userColumnNames.includes('status')) missingUserColumns.push("status ENUM('active', 'inactive', 'suspended') DEFAULT 'inactive' AFTER is_approved");
+        if (!userColumnNames.includes('requested_role')) missingUserColumns.push('requested_role VARCHAR(50) AFTER is_approved');
+        if (!userColumnNames.includes('last_login')) missingUserColumns.push('last_login TIMESTAMP NULL AFTER status');
+        
+        if (missingUserColumns.length > 0) {
+            console.log(`⚠️  Adding ${missingUserColumns.length} missing column(s) to users table...`);
+            
+            for (const columnDef of missingUserColumns) {
+                const columnName = columnDef.split(' ')[0];
+                console.log(`   - Adding ${columnName}...`);
                 await connection.query(
-                    "ALTER TABLE users ADD COLUMN status ENUM('active', 'inactive', 'suspended') DEFAULT 'inactive' AFTER is_approved"
+                    `ALTER TABLE users ADD COLUMN ${columnDef}`
                 );
-                console.log('   ✅ status column added to users table');
-            } catch (err) {
-                console.log('   ⚠️  Could not add status column:', err.message);
             }
+            
+            console.log('✅ Missing user columns added successfully');
         } else {
-            console.log('✅ status column exists in users table');
+            console.log('✅ All required columns exist in users table');
         }
         
         // Fix 8: Fix projects table - ensure project_code exists and project_id doesn't block inserts
