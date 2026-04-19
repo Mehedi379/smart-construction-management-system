@@ -224,19 +224,25 @@ const server = app.listen(PORT, async () => {
         console.log('ℹ️  Database already setup or error:', err.message);
     }
     
-    // Run automatic ID verification on startup
-    if (process.env.NODE_ENV === 'development' || process.env.AUTO_VERIFY === 'true') {
-        const AutoIDVerificationService = require('./src/services/autoIDVerificationService');
-        AutoIDVerificationService.runCompleteVerification()
-            .then(results => {
-                console.log('🔍 Auto ID Verification Results:');
-                console.log(`   ✓ Checks: ${results.checks.length}`);
-                console.log(`   ✓ Fixes: ${results.fixes.length}`);
-                console.log(`   ✗ Errors: ${results.errors.length}\n`);
-            })
-            .catch(err => {
-                console.error('❌ Auto ID Verification failed:', err.message);
-            });
+    console.log('\n✅ Server is ready to accept requests!\n');
+    
+    // Run automatic ID verification on startup (DISABLED IN PRODUCTION)
+    if (process.env.NODE_ENV === 'development' && process.env.AUTO_VERIFY === 'true') {
+        try {
+            const AutoIDVerificationService = require('./src/services/autoIDVerificationService');
+            AutoIDVerificationService.runCompleteVerification()
+                .then(results => {
+                    console.log('🔍 Auto ID Verification Results:');
+                    console.log(`   ✓ Checks: ${results.checks.length}`);
+                    console.log(`   ✓ Fixes: ${results.fixes.length}`);
+                    console.log(`   ✗ Errors: ${results.errors.length}\n`);
+                })
+                .catch(err => {
+                    console.error('❌ Auto ID Verification failed:', err.message);
+                });
+        } catch (err) {
+            console.log('ℹ️  Auto ID Verification service not available');
+        }
     }
 });
 
