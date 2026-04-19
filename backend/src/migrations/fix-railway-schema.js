@@ -288,6 +288,28 @@ async function fixRailwaySchema() {
             console.log('✅ All required columns exist in users table');
         }
         
+        // Fix 7.6: Fix voucher_type column to support all types
+        console.log('\n📋 Checking vouchers table voucher_type column...');
+        try {
+            // Change voucher_type to support: payment, receipt, expense, journal, contra
+            await connection.query(
+                "ALTER TABLE vouchers MODIFY COLUMN voucher_type VARCHAR(50) NOT NULL"
+            );
+            console.log('   ✅ voucher_type updated to VARCHAR(50)');
+        } catch (err) {
+            console.log('   ⚠️  Could not update voucher_type:', err.message);
+        }
+        
+        // Fix status column in vouchers
+        try {
+            await connection.query(
+                "ALTER TABLE vouchers MODIFY COLUMN status VARCHAR(50) DEFAULT 'pending'"
+            );
+            console.log('   ✅ voucher status column updated');
+        } catch (err) {
+            console.log('   ⚠️  Could not update voucher status');
+        }
+        
         // Fix 8: Fix projects table - ensure project_code exists and project_id doesn't block inserts
         console.log('\n📋 Checking projects table...');
         const [projectColumns] = await connection.query("SHOW COLUMNS FROM projects");
