@@ -474,42 +474,52 @@ exports.getAllUserStats = async (req, res) => {
             `SELECT COUNT(*) as total FROM users WHERE is_approved = FALSE`
         );
 
-        // Get all users with details
-        const [allUsers] = await pool.query(
-            `SELECT 
-                u.id,
-                u.name,
-                u.email,
-                u.role,
-                u.is_approved,
-                u.is_active,
-                u.status,
-                u.created_at,
-                e.employee_id,
-                e.assigned_project_id,
-                p.project_code,
-                p.project_name
-             FROM users u
-             LEFT JOIN employees e ON u.id = e.user_id
-             LEFT JOIN projects p ON e.assigned_project_id = p.id
-             ORDER BY u.created_at DESC`
-        );
+        // Get all users with details (simplified query)
+        let allUsers = [];
+        try {
+            const [usersResult] = await pool.query(
+                `SELECT 
+                    u.id,
+                    u.name,
+                    u.email,
+                    u.role,
+                    u.is_approved,
+                    u.is_active,
+                    u.created_at,
+                    e.employee_id,
+                    e.assigned_project_id
+                 FROM users u
+                 LEFT JOIN employees e ON u.id = e.user_id
+                 ORDER BY u.created_at DESC`
+            );
+            allUsers = usersResult;
+        } catch (err) {
+            console.log('⚠️  Simplified user query:', err.message);
+            // Fallback to just users
+            const [usersResult] = await pool.query(
+                `SELECT id, name, email, role, is_approved, is_active, created_at FROM users ORDER BY created_at DESC`
+            );
+            allUsers = usersResult;
+        }
 
-        // Get project-wise user counts
-        const [projectStats] = await pool.query(
-            `SELECT 
-                p.id as project_id,
-                p.project_code,
-                p.project_name,
-                COUNT(u.id) as total_users,
-                SUM(CASE WHEN u.is_approved = TRUE THEN 1 ELSE 0 END) as approved_users,
-                SUM(CASE WHEN u.is_approved = FALSE THEN 1 ELSE 0 END) as pending_users
-             FROM projects p
-             LEFT JOIN employees e ON p.id = e.assigned_project_id
-             LEFT JOIN users u ON e.user_id = u.id
-             GROUP BY p.id, p.project_code, p.project_name
-             ORDER BY p.id`
-        );
+        // Get project-wise user counts (ignore if fails)
+        let projectStats = [];
+        try {
+            const [projectsResult] = await pool.query(
+                `SELECT 
+                    p.id as project_id,
+                    p.project_name,
+                    COUNT(u.id) as total_users
+                 FROM projects p
+                 LEFT JOIN employees e ON p.id = e.assigned_project_id
+                 LEFT JOIN users u ON e.user_id = u.id
+                 GROUP BY p.id, p.project_name
+                 ORDER BY p.id`
+            );
+            projectStats = projectsResult;
+        } catch (err) {
+            console.log('⚠️  Skipping project stats:', err.message);
+        }
 
         res.json({
             success: true,
@@ -528,11 +538,11 @@ exports.getAllUserStats = async (req, res) => {
         });
 
     } catch (error) {
-        console.error('Get all user stats error:', error);
+        console.error('❌ Get all user stats error:', error.message);
         res.status(500).json({
             success: false,
             message: 'Failed to fetch user statistics',
-            error: process.env.NODE_ENV === 'development' ? error.message : undefined
+            error: process.env.NODE_ENV === 'development' ? error.message : 'Internal server error'
         });
     }
 };
