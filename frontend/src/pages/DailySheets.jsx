@@ -417,13 +417,12 @@ const DailySheets = () => {
             }
             
             console.log('🔍 Viewing sheet - ID:', sheet.id, 'Sheet No:', sheet.sheet_no);
-            console.log('📋 Full sheet object:', sheet);
-            
             setLoading(true);
             
             // Clear previous sheet data first
             setViewSheet(null);
             
+            // Fetch FULL sheet data with items and signatures (same as print)
             const response = await dailySheetService.getSheetById(sheet.id);
             
             if (!response.data) {
@@ -431,11 +430,21 @@ const DailySheets = () => {
                 return;
             }
             
-            console.log('✅ Sheet data loaded from API:', response.data);
-            console.log('📋 Sheet No from API:', response.data.sheet_no);
-            console.log('📦 Items count:', response.data.items?.length);
+            const fullSheet = response.data;
             
-            setViewSheet(response.data);
+            // Fetch signature requests (same as print)
+            try {
+                const sigResponse = await dailySheetService.getSignatureRequestStatus(fullSheet.id);
+                fullSheet.signature_requests = sigResponse.data || [];
+            } catch (error) {
+                console.error('Failed to load signatures for view:', error);
+            }
+            
+            console.log('✅ Full sheet data loaded:', fullSheet);
+            console.log('📋 Sheet No:', fullSheet.sheet_no);
+            console.log('📦 Items count:', fullSheet.items?.length);
+            
+            setViewSheet(fullSheet);
             console.log('📦 viewSheet state updated successfully');
         } catch (error) {
             console.error('❌ Failed to load sheet:', error);
