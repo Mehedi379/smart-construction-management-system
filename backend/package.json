@@ -22,7 +22,8 @@
     "fix:orphaned": "node maintenance-cli.js fix orphanedRecords",
     "fix:admin": "node maintenance-cli.js fix adminPassword",
     "fix:workflow": "node maintenance-cli.js fix workflowSteps",
-    "fix:recalculate": "node maintenance-cli.js fix recalculateProjects"
+    "fix:recalculate": "node maintenance-cli.js fix recalculateProjects",
+    "fix:admin-user": "node fix-admin-user.js"
   },
   "dependencies": {
     "axios": "^1.15.0",
