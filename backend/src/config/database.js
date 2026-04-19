@@ -34,11 +34,28 @@ const dbHost = process.env.DB_HOST ||
                
 const dbPort = parseInt(process.env.DB_PORT || process.env.MYSQLPORT || '3306');
 const dbUser = process.env.DB_USER || process.env.MYSQLUSER || 'root';
+
+// Try ALL possible password variable names
 const dbPassword = process.env.DB_PASSWORD || 
-                   process.env.DATABASE_PASSWORD ||  // New variable
-                   process.env.MYSQLPASSWORD || 
-                   process.env.MYSQL_ROOT_PASSWORD ||  // Add this fallback
+                   process.env.DATABASE_PASSWORD ||
+                   process.env.MYSQL_ROOT_PASSWORD ||  // From MySQL service
+                   process.env.MYSQL_PASSWORD ||
+                   process.env.MYSQLPASSWORD ||
                    '';
+
+// Debug: Log which password variable is being used
+if (process.env.DB_PASSWORD) {
+    console.log('✅ Using DB_PASSWORD');
+} else if (process.env.DATABASE_PASSWORD) {
+    console.log('✅ Using DATABASE_PASSWORD');
+} else if (process.env.MYSQL_ROOT_PASSWORD) {
+    console.log('✅ Using MYSQL_ROOT_PASSWORD');
+} else if (process.env.MYSQL_PASSWORD) {
+    console.log('✅ Using MYSQL_PASSWORD');
+} else {
+    console.log('❌ NO PASSWORD VARIABLE FOUND!');
+}
+
 const dbName = process.env.DB_NAME || process.env.MYSQLDATABASE || 'construction_db';
 
 console.log('\n🔧 Final Database Configuration:');
