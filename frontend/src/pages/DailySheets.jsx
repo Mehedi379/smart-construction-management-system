@@ -416,8 +416,14 @@ const DailySheets = () => {
                 return;
             }
             
-            console.log('🔍 Viewing sheet ID:', sheet.id);
+            console.log('🔍 Viewing sheet - ID:', sheet.id, 'Sheet No:', sheet.sheet_no);
+            console.log('📋 Full sheet object:', sheet);
+            
             setLoading(true);
+            
+            // Clear previous sheet data first
+            setViewSheet(null);
+            
             const response = await dailySheetService.getSheetById(sheet.id);
             
             if (!response.data) {
@@ -425,10 +431,12 @@ const DailySheets = () => {
                 return;
             }
             
-            console.log('✅ Sheet data loaded:', response.data);
-            console.log('📋 Items count:', response.data.items?.length);
+            console.log('✅ Sheet data loaded from API:', response.data);
+            console.log('📋 Sheet No from API:', response.data.sheet_no);
+            console.log('📦 Items count:', response.data.items?.length);
+            
             setViewSheet(response.data);
-            console.log('📦 viewSheet state updated');
+            console.log('📦 viewSheet state updated successfully');
         } catch (error) {
             console.error('❌ Failed to load sheet:', error);
             toast.error('Failed to load sheet details');
