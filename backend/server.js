@@ -123,6 +123,34 @@ app.use('/api/audit', require('./src/routes/audit'));
 app.use('/api/admin/ids', require('./src/routes/unlimitIDRoutes'));
 
 // ============================================
+// ROOT ROUTE
+// ============================================
+
+app.get('/', (req, res) => {
+    res.json({
+        success: true,
+        message: 'Smart Construction Management System API',
+        version: '2.0.0',
+        documentation: '/api/health',
+        endpoints: {
+            health: '/api/health',
+            auth: '/api/auth',
+            employees: '/api/employees',
+            projects: '/api/projects',
+            vouchers: '/api/vouchers',
+            expenses: '/api/expenses',
+            ledger: '/api/ledger',
+            reports: '/api/reports',
+            purchases: '/api/purchases',
+            sheets: '/api/sheets',
+            workflow: '/api/workflow',
+            audit: '/api/audit'
+        },
+        timestamp: new Date().toISOString()
+    });
+});
+
+// ============================================
 // HEALTH CHECK
 // ============================================
 
