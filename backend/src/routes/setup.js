@@ -155,4 +155,68 @@ router.post('/test-connection', async (req, res) => {
     }
 });
 
+// Fix Admin User Endpoint
+router.post('/fix-admin', async (req, res) => {
+    try {
+        console.log('🔧 Fixing admin user...');
+        
+        const pool = require('../config/database');
+        
+        // Generate proper password hash for 'admin123'
+        const hashedPassword = await bcrypt.hash('admin123', 10);
+        
+        // Check if admin exists
+        const [existingUsers] = await pool.query(
+            'SELECT id, email FROM users WHERE email = ?',
+            ['admin@khazabilkis.com']
+        );
+        
+        if (existingUsers.length > 0) {
+            // Update existing admin
+            await pool.query(
+                `UPDATE users 
+                 SET password = ?, 
+                     role = 'admin', 
+                     is_active = 1, 
+                     is_approved = 1 
+                 WHERE email = ?`,
+                [hashedPassword, 'admin@khazabilkis.com']
+            );
+            console.log('✅ Admin user updated');
+        } else {
+            // Create new admin
+            await pool.query(
+                `INSERT INTO users (name, email, password, role, phone, is_active, is_approved) 
+                 VALUES (?, ?, ?, 'admin', '01700000000', 1, 1)`,
+                ['Admin User', 'admin@khazabilkis.com', hashedPassword]
+            );
+            console.log('✅ Admin user created');
+        }
+        
+        // Verify
+        const [verifyUser] = await pool.query(
+            'SELECT id, name, email, role, is_active, is_approved FROM users WHERE email = ?',
+            ['admin@khazabilkis.com']
+        );
+        
+        res.json({
+            success: true,
+            message: 'Admin user fixed successfully!',
+            user: verifyUser[0] || null,
+            login: {
+                email: 'admin@khazabilkis.com',
+                password: 'admin123'
+            }
+        });
+        
+    } catch (error) {
+        console.error('❌ Fix admin error:', error);
+        res.status(500).json({
+            success: false,
+            message: 'Failed to fix admin user',
+            error: error.message
+        });
+    }
+});
+
 module.exports = router;
