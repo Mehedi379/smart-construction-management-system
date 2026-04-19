@@ -260,6 +260,75 @@ async function fixRailwaySchema() {
             console.log('✅ All required columns exist in employees table');
         }
         
+        // Fix 8: Add missing columns to projects table
+        console.log('\n📋 Checking projects table...');
+        const [projectColumns] = await connection.query("SHOW COLUMNS FROM projects");
+        const projectColumnNames = projectColumns.map(col => col.Field);
+        const missingProjectColumns = [];
+        
+        if (!projectColumnNames.includes('project_code')) missingProjectColumns.push('project_code VARCHAR(20) UNIQUE AFTER id');
+        if (!projectColumnNames.includes('client_id')) missingProjectColumns.push('client_id INT AFTER project_name');
+        
+        if (missingProjectColumns.length > 0) {
+            console.log(`⚠️  Adding ${missingProjectColumns.length} missing column(s) to projects table...`);
+            
+            for (const columnDef of missingProjectColumns) {
+                const columnName = columnDef.split(' ')[0];
+                console.log(`   - Adding ${columnName}...`);
+                await connection.query(
+                    `ALTER TABLE projects ADD COLUMN ${columnDef}`
+                );
+            }
+            
+            // Add foreign key for client_id
+            try {
+                await connection.query(
+                    "ALTER TABLE projects ADD CONSTRAINT fk_project_client FOREIGN KEY (client_id) REFERENCES clients(id) ON DELETE SET NULL"
+                );
+            } catch (err) {
+                // Foreign key might already exist
+            }
+            
+            console.log('✅ Missing project columns added successfully');
+        } else {
+            console.log('✅ All required columns exist in projects table');
+        }
+        
+        // Fix 9: Add missing columns to expenses table (beyond expense_date)
+        console.log('\n📋 Checking expenses table for additional columns...');
+        const [expenseCols] = await connection.query("SHOW COLUMNS FROM expenses");
+        const expenseColumnNames = expenseCols.map(col => col.Field);
+        const missingExpenseColumns = [];
+        
+        if (!expenseColumnNames.includes('subcategory')) missingExpenseColumns.push('subcategory VARCHAR(100) AFTER category');
+        if (!expenseColumnNames.includes('voucher_id')) missingExpenseColumns.push('voucher_id INT AFTER project_id');
+        if (!expenseColumnNames.includes('receipt_image')) missingExpenseColumns.push('receipt_image VARCHAR(255) AFTER payment_method');
+        
+        if (missingExpenseColumns.length > 0) {
+            console.log(`⚠️  Adding ${missingExpenseColumns.length} missing column(s) to expenses table...`);
+            
+            for (const columnDef of missingExpenseColumns) {
+                const columnName = columnDef.split(' ')[0];
+                console.log(`   - Adding ${columnName}...`);
+                await connection.query(
+                    `ALTER TABLE expenses ADD COLUMN ${columnDef}`
+                );
+            }
+            
+            // Add foreign key for voucher_id
+            try {
+                await connection.query(
+                    "ALTER TABLE expenses ADD CONSTRAINT fk_expense_voucher FOREIGN KEY (voucher_id) REFERENCES vouchers(id) ON DELETE SET NULL"
+                );
+            } catch (err) {
+                // Foreign key might already exist
+            }
+            
+            console.log('✅ Missing expense columns added successfully');
+        } else {
+            console.log('✅ All required columns exist in expenses table');
+        }
+        
         console.log('\n✅ Database schema migration completed successfully!\n');
         
         connection.release();
